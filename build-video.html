@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>StyleReel — Build Video</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#05070F;--bg-soft:#0A0F1E;--panel:#0D1426;--panel-2:#111B33;
+    --card:#0F1830;--line:rgba(255,255,255,.08);--line-strong:rgba(255,255,255,.16);
+    --navy:#16245A;--blue:#3B6EF5;--blue-bright:#5C8BFF;--glow:rgba(59,110,245,.55);
+    --txt:#EAF0FB;--muted:#8C9AB6;--muted-2:#5E6C88;--radius:18px;--maxw:1340px;
+    font-synthesis:none;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html,body{background:var(--bg);color:var(--txt);font-family:'Manrope',sans-serif;-webkit-font-smoothing:antialiased;}
+  body{min-height:100vh;background:radial-gradient(1200px 620px at 78% -8%,rgba(59,110,245,.22),transparent 60%),radial-gradient(900px 600px at -5% 8%,rgba(22,36,90,.45),transparent 55%),var(--bg);overflow-x:hidden;}
+  ::selection{background:var(--blue);color:#fff;}
+  button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit;}
+  h1,h2,h3,.brand{font-family:'Space Grotesk',sans-serif;}
+
+  /* Header */
+  header{position:sticky;top:0;z-index:50;background:rgba(5,7,15,.72);backdrop-filter:blur(14px);border-bottom:1px solid var(--line);}
+  .nav{max-width:var(--maxw);margin:0 auto;padding:0 40px;height:72px;display:flex;align-items:center;gap:40px;}
+  .brand{display:flex;align-items:center;gap:11px;font-size:22px;font-weight:700;letter-spacing:-.02em;text-decoration:none;color:var(--txt);}
+  .brand-mark{width:34px;height:34px;border-radius:10px;background:linear-gradient(140deg,var(--blue-bright),var(--navy));display:grid;place-items:center;box-shadow:0 6px 20px -6px var(--glow);position:relative;}
+  .brand-mark::before{content:"";width:13px;height:13px;border-radius:4px 9px 4px 9px;background:#fff;}
+  .brand span{color:var(--blue-bright);}
+  .nav-right{margin-left:auto;display:flex;align-items:center;gap:14px;}
+  .btn-back{display:flex;align-items:center;gap:8px;padding:10px 18px;border-radius:11px;font-size:14px;font-weight:600;color:var(--muted);border:1px solid var(--line);transition:.15s;}
+  .btn-back:hover{color:var(--txt);border-color:var(--line-strong);}
+
+  /* Main */
+  main{max-width:var(--maxw);margin:0 auto;padding:40px 40px 80px;}
+  .page-title{font-size:32px;font-weight:700;letter-spacing:-.02em;margin-bottom:6px;}
+  .page-title em{font-style:normal;color:transparent;background:linear-gradient(110deg,var(--blue-bright),#A9C2FF);-webkit-background-clip:text;background-clip:text;}
+  .page-desc{color:var(--muted);font-size:15px;margin-bottom:32px;max-width:600px;line-height:1.55;}
+
+  .studio{display:grid;grid-template-columns:1fr 420px;gap:28px;align-items:start;}
+
+  /* Panel */
+  .panel{background:linear-gradient(180deg,rgba(255,255,255,.025),rgba(255,255,255,0)),var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:26px;}
+  .panel-head{display:flex;align-items:center;gap:12px;margin-bottom:4px;}
+  .panel-head .num{width:26px;height:26px;border-radius:8px;display:grid;place-items:center;font-family:'Space Grotesk';font-size:13px;font-weight:700;color:var(--blue-bright);background:rgba(59,110,245,.12);border:1px solid rgba(59,110,245,.3);}
+  .panel-head h2{font-size:19px;font-weight:600;letter-spacing:-.01em;}
+  .panel-sub{color:var(--muted-2);font-size:13.5px;margin:6px 0 20px 38px;}
+
+  .section-label{display:flex;align-items:center;justify-content:space-between;font-size:13px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);margin:24px 0 13px;}
+  .section-label:first-of-type{margin-top:4px;}
+  .req{color:var(--blue-bright);font-size:11px;letter-spacing:.02em;}
+
+  /* Slides grid */
+  .slides-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:16px;}
+  .slide-card{position:relative;border-radius:14px;overflow:hidden;border:1px solid var(--line);background:var(--panel-2);transition:.16s;}
+  .slide-card:hover{border-color:rgba(92,139,255,.3);}
+  .slide-card .slide-img-wrap{position:relative;aspect-ratio:9/16;background:#070B16;overflow:hidden;cursor:pointer;}
+  .slide-card .slide-img-wrap img{width:100%;height:100%;object-fit:cover;display:none;}
+  .slide-card.has-img .slide-img-wrap img{display:block;}
+  .slide-ph{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;color:var(--muted-2);}
+  .slide-card.has-img .slide-ph{display:none;}
+  .slide-ph .sph-icon{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;background:rgba(255,255,255,.04);border:1px solid var(--line);color:var(--muted-2);font-size:20px;}
+  .slide-ph span:last-child{font-size:12px;font-weight:600;}
+  .slide-idx{position:absolute;left:8px;top:8px;z-index:3;font-size:11px;font-weight:700;padding:4px 9px;border-radius:7px;background:rgba(5,7,15,.75);border:1px solid var(--line);color:#fff;}
+  .slide-del{position:absolute;right:7px;top:7px;z-index:3;display:none;width:24px;height:24px;border-radius:7px;align-items:center;justify-content:center;background:rgba(5,7,15,.8);border:1px solid var(--line);color:#fff;font-size:14px;line-height:1;cursor:pointer;}
+  .slide-card.has-img .slide-del{display:flex;}
+  /* Sub overlay preview on image */
+  .slide-sub-preview{position:absolute;left:50%;bottom:12%;transform:translateX(-50%);z-index:4;display:none;max-width:88%;padding:6px 14px;border-radius:8px;background:rgba(5,7,15,.6);backdrop-filter:blur(3px);color:#fff;font-size:12px;font-weight:700;text-align:center;text-shadow:0 1px 4px rgba(0,0,0,.6);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .slide-card.has-sub .slide-sub-preview{display:block;}
+
+  .slide-footer{padding:10px 12px;display:flex;flex-direction:column;gap:6px;}
+  .slide-footer input{width:100%;padding:9px 11px;border-radius:9px;background:rgba(255,255,255,.04);border:1px solid var(--line);color:var(--txt);font-family:inherit;font-size:13px;font-weight:500;}
+  .slide-footer input:focus{outline:none;border-color:var(--blue);}
+  .slide-footer input::placeholder{color:var(--muted-2);}
+
+  /* Add slide button */
+  .add-slide{border:1.5px dashed var(--line-strong);border-radius:14px;background:rgba(255,255,255,.015);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;min-height:240px;transition:.16s;cursor:pointer;}
+  .add-slide:hover{border-color:var(--blue);background:rgba(59,110,245,.06);}
+  .add-slide .as-icon{width:44px;height:44px;border-radius:13px;display:grid;place-items:center;background:rgba(255,255,255,.05);border:1px solid var(--line);color:var(--blue-bright);font-size:22px;transition:.16s;}
+  .add-slide:hover .as-icon{background:rgba(59,110,245,.14);}
+  .add-slide span:last-child{font-size:13px;font-weight:600;color:var(--muted);}
+
+  /* Right panel: preview + settings + generate */
+  .preview-panel{position:sticky;top:96px;}
+  .preview-stage{position:relative;border-radius:14px;overflow:hidden;border:1px solid var(--line);background:#070B16;aspect-ratio:9/16;max-width:340px;margin:0 auto;}
+  .preview-stage canvas{width:100%;height:100%;display:block;}
+  .preview-empty{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;color:var(--muted-2);text-align:center;padding:30px;}
+  .preview-empty .pe-icon{width:52px;height:52px;border-radius:14px;display:grid;place-items:center;background:rgba(59,110,245,.10);border:1px solid rgba(59,110,245,.25);color:var(--blue-bright);}
+  .preview-empty p{font-size:13px;max-width:220px;line-height:1.5;}
+
+  .preview-nav{display:flex;align-items:center;justify-content:center;gap:12px;margin-top:12px;}
+  .preview-nav button{width:36px;height:36px;border-radius:10px;display:grid;place-items:center;border:1px solid var(--line);color:var(--muted);transition:.15s;}
+  .preview-nav button:hover{color:var(--txt);border-color:var(--line-strong);background:rgba(255,255,255,.03);}
+  .preview-nav .nav-label{font-size:13px;font-weight:600;color:var(--muted);font-variant-numeric:tabular-nums;min-width:60px;text-align:center;}
+
+  /* Settings */
+  .settings-row{display:flex;align-items:center;gap:14px;margin-top:20px;padding:14px 16px;border-radius:12px;background:var(--panel-2);border:1px solid var(--line);}
+  .settings-row label{font-size:12px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);white-space:nowrap;}
+  .settings-row input[type="range"]{flex:1;accent-color:var(--blue-bright);}
+  .settings-row .val{font-family:'Space Grotesk';font-size:14px;font-weight:700;color:var(--blue-bright);min-width:32px;text-align:right;}
+
+  .gen-btn{margin-top:18px;width:100%;padding:16px;border-radius:14px;font-family:'Space Grotesk';font-size:16px;font-weight:700;color:#fff;background:linear-gradient(180deg,var(--blue-bright),var(--blue));box-shadow:0 14px 32px -12px var(--glow);transition:.18s;display:flex;align-items:center;justify-content:center;gap:10px;}
+  .gen-btn:hover{transform:translateY(-1px);box-shadow:0 18px 38px -12px var(--glow);}
+  .gen-btn:disabled{opacity:.45;cursor:not-allowed;transform:none;box-shadow:none;}
+
+  .gen-progress{display:none;align-items:center;justify-content:center;gap:12px;margin-top:14px;padding:14px;border-radius:12px;background:var(--panel-2);border:1px solid var(--line);font-size:13px;color:var(--muted);}
+  .gen-progress.show{display:flex;}
+  .spinner{width:22px;height:22px;border-radius:50%;border:2.5px solid rgba(255,255,255,.12);border-top-color:var(--blue-bright);animation:spin .8s linear infinite;flex-shrink:0;}
+  @keyframes spin{to{transform:rotate(360deg);}}
+
+  /* Video result */
+  .video-result{display:none;margin-top:16px;}
+  .video-result.show{display:block;}
+  .video-result video{width:100%;border-radius:14px;border:1px solid var(--line);background:#000;}
+  .dl-btn{display:flex;align-items:center;justify-content:center;gap:9px;margin-top:12px;width:100%;padding:14px;border-radius:13px;font-family:'Space Grotesk';font-size:15px;font-weight:700;color:#fff;background:linear-gradient(180deg,#37D67A,#1B9E4B);box-shadow:0 10px 24px -10px rgba(55,214,122,.45);transition:.18s;}
+  .dl-btn:hover{transform:translateY(-1px);box-shadow:0 14px 28px -10px rgba(55,214,122,.5);}
+
+  .foot{max-width:var(--maxw);margin:0 auto;padding:0 40px 50px;color:var(--muted-2);font-size:13px;display:flex;gap:8px;align-items:center;}
+  svg{display:block;}
+
+  @media(max-width:900px){
+    .studio{grid-template-columns:1fr;}
+    .preview-panel{position:static;}
+    main{padding:28px 20px 60px;}
+    .nav{gap:18px;padding:0 20px;}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="nav">
+    <a href="Tạo Video AI.html" class="brand"><div class="brand-mark"></div>Style<span>Reel</span></a>
+    <div class="nav-right">
+      <a href="Tạo Video AI.html" class="btn-back">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+        Quay lại
+      </a>
+    </div>
+  </div>
+</header>
+
+<main>
+  <h1 class="page-title">Build <em>Video</em></h1>
+  <p class="page-desc">Thêm ảnh, ghép phụ đề lên từng ảnh, rồi tạo video trình chiếu đơn giản. Mỗi ảnh sẽ là một slide trong video.</p>
+
+  <div class="studio">
+    <!-- LEFT: Slides -->
+    <section class="panel">
+      <div class="panel-head"><span class="num">1</span><h2>Ảnh slide</h2></div>
+      <p class="panel-sub">Thêm ảnh vào video. Mỗi ảnh là 1 slide. Nhập phụ đề (tuỳ chọn) cho từng ảnh.</p>
+
+      <div class="slides-grid" id="slidesGrid">
+        <!-- Slide cards will be added here -->
+        <div class="add-slide" id="addSlideBtn">
+          <input type="file" accept="image/*" multiple hidden id="addSlideInput">
+          <span class="as-icon">+</span>
+          <span>Thêm ảnh</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- RIGHT: Preview + Generate -->
+    <section class="panel preview-panel">
+      <div class="panel-head"><span class="num">2</span><h2>Xem trước &amp; Tạo video</h2></div>
+      <p class="panel-sub">Xem trước từng slide và tạo video slideshow.</p>
+
+      <div class="preview-stage" id="previewStage">
+        <canvas id="previewCanvas" width="1080" height="1920"></canvas>
+        <div class="preview-empty" id="previewEmpty">
+          <span class="pe-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="m22 8-6 4 6 4V8z"/><rect x="2" y="6" width="14" height="12" rx="2"/></svg>
+          </span>
+          <p>Thêm ảnh ở bên trái để bắt đầu xem trước</p>
+        </div>
+      </div>
+
+      <div class="preview-nav" id="previewNav" style="display:none;">
+        <button id="prevSlide"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg></button>
+        <span class="nav-label" id="slideLabel">1 / 1</span>
+        <button id="nextSlide"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></button>
+      </div>
+
+      <div class="settings-row">
+        <label>Thời lượng slide</label>
+        <input type="range" id="durationSlider" min="1" max="5" step="0.5" value="2.5">
+        <span class="val" id="durationVal">2.5s</span>
+      </div>
+
+      <button class="gen-btn" id="genVideoBtn" disabled>
+        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m22 8-6 4 6 4V8z"/><rect x="2" y="6" width="14" height="12" rx="2"/></svg>
+        Tạo Video Slideshow
+      </button>
+
+      <div class="gen-progress" id="genProgress">
+        <span class="spinner"></span>
+        <span id="genProgressLbl">Đang tạo video…</span>
+      </div>
+
+      <div class="video-result" id="videoResult">
+        <video id="resultVideo" controls playsinline></video>
+        <button class="dl-btn" id="dlVideoBtn">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0 4-4m-4 4-4-4M5 21h14"/></svg>
+          Tải video về máy
+        </button>
+      </div>
+    </section>
+  </div>
+</main>
+
+<div class="foot">
+  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4m0-4h.01"/></svg>
+  StyleReel AI Studio · Build Video
+</div>
+
+<script>
+// =============================================
+// State
+// =============================================
+const slides = []; // { id, src (dataURL), subtitle }
+let currentPreview = 0;
+let slideIdCounter = 0;
+
+const slidesGrid = document.getElementById('slidesGrid');
+const addSlideBtn = document.getElementById('addSlideBtn');
+const addSlideInput = document.getElementById('addSlideInput');
+const previewCanvas = document.getElementById('previewCanvas');
+const previewCtx = previewCanvas.getContext('2d');
+const previewEmpty = document.getElementById('previewEmpty');
+const previewNav = document.getElementById('previewNav');
+const slideLabel = document.getElementById('slideLabel');
+const genVideoBtn = document.getElementById('genVideoBtn');
+const durationSlider = document.getElementById('durationSlider');
+const durationVal = document.getElementById('durationVal');
+
+// =============================================
+// Load saved images from main page (if any)
+// =============================================
+function loadSavedImages(){
+  const keys = ['stylereel_detail_img1','stylereel_detail_img2','stylereel_grid_img'];
+  keys.forEach(key => {
+    const src = localStorage.getItem(key);
+    if(src && src.startsWith('data:')){
+      addSlideFromSrc(src);
+    }
+  });
+}
+
+// =============================================
+// Slide management
+// =============================================
+function addSlideFromSrc(src, subtitle){
+  const id = ++slideIdCounter;
+  slides.push({ id, src, subtitle: subtitle || '' });
+  renderSlides();
+  updatePreview();
+}
+
+function removeSlide(id){
+  const idx = slides.findIndex(s => s.id === id);
+  if(idx >= 0) slides.splice(idx, 1);
+  if(currentPreview >= slides.length) currentPreview = Math.max(0, slides.length - 1);
+  renderSlides();
+  updatePreview();
+}
+
+function updateSubtitle(id, text){
+  const s = slides.find(s => s.id === id);
+  if(s){
+    s.subtitle = text;
+    // Update sub preview
+    const card = document.querySelector(`.slide-card[data-id="${id}"]`);
+    if(card){
+      const sp = card.querySelector('.slide-sub-preview');
+      sp.textContent = text;
+      card.classList.toggle('has-sub', !!text.trim());
+    }
+    updatePreview();
+  }
+}
+
+function renderSlides(){
+  // Remove all slide cards (keep add button)
+  document.querySelectorAll('.slide-card').forEach(c => c.remove());
+
+  slides.forEach((slide, i) => {
+    const card = document.createElement('div');
+    card.className = 'slide-card has-img' + (slide.subtitle ? ' has-sub' : '');
+    card.dataset.id = slide.id;
+    card.innerHTML = `
+      <div class="slide-img-wrap">
+        <img src="${slide.src}" alt="Slide ${i+1}">
+        <span class="slide-idx">${i+1}</span>
+        <button class="slide-del" title="Xóa slide">×</button>
+        <div class="slide-sub-preview">${slide.subtitle || ''}</div>
+      </div>
+      <div class="slide-footer">
+        <input type="text" placeholder="Nhập phụ đề…" value="${slide.subtitle || ''}" maxlength="80">
+      </div>
+    `;
+
+    // Events
+    card.querySelector('.slide-del').addEventListener('click', () => removeSlide(slide.id));
+    card.querySelector('.slide-footer input').addEventListener('input', function(){
+      updateSubtitle(slide.id, this.value);
+    });
+    card.querySelector('.slide-img-wrap').addEventListener('click', e => {
+      if(e.target.closest('.slide-del')) return;
+      currentPreview = i;
+      updatePreview();
+    });
+
+    slidesGrid.insertBefore(card, addSlideBtn);
+  });
+
+  genVideoBtn.disabled = slides.length < 1;
+}
+
+// =============================================
+// Preview
+// =============================================
+function updatePreview(){
+  if(slides.length === 0){
+    previewEmpty.style.display = 'flex';
+    previewNav.style.display = 'none';
+    previewCtx.clearRect(0, 0, 1080, 1920);
+    return;
+  }
+  previewEmpty.style.display = 'none';
+  previewNav.style.display = 'flex';
+  slideLabel.textContent = (currentPreview + 1) + ' / ' + slides.length;
+  drawSlideOnCanvas(previewCtx, slides[currentPreview], 1080, 1920);
+}
+
+function drawSlideOnCanvas(ctx, slide, w, h){
+  ctx.clearRect(0, 0, w, h);
+  ctx.fillStyle = '#070B16';
+  ctx.fillRect(0, 0, w, h);
+
+  const img = new Image();
+  img.onload = () => {
+    // Cover fit
+    const scale = Math.max(w / img.width, h / img.height);
+    const nw = img.width * scale, nh = img.height * scale;
+    ctx.drawImage(img, (w - nw) / 2, (h - nh) / 2, nw, nh);
+
+    // Draw subtitle
+    if(slide.subtitle && slide.subtitle.trim()){
+      drawSubtitle(ctx, slide.subtitle, w, h);
+    }
+  };
+  img.src = slide.src;
+}
+
+function drawSubtitle(ctx, text, w, h){
+  ctx.save();
+  const fontSize = Math.round(42 * (w / 1080));
+  ctx.font = '700 ' + fontSize + 'px Manrope, sans-serif';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  const m = ctx.measureText(text);
+  const pw = Math.min(m.width + 60, w * 0.9);
+  const ph = fontSize * 1.9;
+  const py = h * 0.83;
+  const px = (w - pw) / 2;
+
+  // Background pill
+  ctx.fillStyle = 'rgba(5,7,15,.6)';
+  roundRect(ctx, px, py, pw, ph, 16);
+  ctx.fill();
+
+  // Text
+  ctx.fillStyle = '#fff';
+  ctx.shadowColor = 'rgba(0,0,0,.55)';
+  ctx.shadowBlur = 8;
+  ctx.fillText(text, w / 2, py + ph / 2, pw - 30);
+  ctx.restore();
+}
+
+function roundRect(ctx, x, y, w, h, r){
+  ctx.beginPath();
+  ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);
+  ctx.quadraticCurveTo(x+w,y,x+w,y+r);ctx.lineTo(x+w,y+h-r);
+  ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);ctx.lineTo(x+r,y+h);
+  ctx.quadraticCurveTo(x,y+h,x,y+h-r);ctx.lineTo(x,y+r);
+  ctx.quadraticCurveTo(x,y,x+r,y);ctx.closePath();
+}
+
+// Navigation
+document.getElementById('prevSlide').addEventListener('click', () => {
+  if(slides.length === 0) return;
+  currentPreview = (currentPreview - 1 + slides.length) % slides.length;
+  updatePreview();
+});
+document.getElementById('nextSlide').addEventListener('click', () => {
+  if(slides.length === 0) return;
+  currentPreview = (currentPreview + 1) % slides.length;
+  updatePreview();
+});
+
+// =============================================
+// Add slide
+// =============================================
+addSlideBtn.addEventListener('click', () => addSlideInput.click());
+addSlideInput.addEventListener('change', () => {
+  const files = addSlideInput.files;
+  if(!files.length) return;
+  Array.from(files).forEach(f => {
+    const reader = new FileReader();
+    reader.onload = e => addSlideFromSrc(e.target.result);
+    reader.readAsDataURL(f);
+  });
+  addSlideInput.value = '';
+});
+
+// Duration slider
+durationSlider.addEventListener('input', () => {
+  durationVal.textContent = durationSlider.value + 's';
+});
+
+// =============================================
+// Generate video (Canvas + MediaRecorder)
+// =============================================
+genVideoBtn.addEventListener('click', async () => {
+  if(slides.length < 1) return;
+  genVideoBtn.disabled = true;
+
+  const progress = document.getElementById('genProgress');
+  const progressLbl = document.getElementById('genProgressLbl');
+  progress.classList.add('show');
+  document.getElementById('videoResult').classList.remove('show');
+
+  const W = 1080, H = 1920;
+  const msPerSlide = parseFloat(durationSlider.value) * 1000;
+
+  const canvas = document.createElement('canvas');
+  canvas.width = W; canvas.height = H;
+  const ctx = canvas.getContext('2d');
+
+  // Pre-load all images
+  progressLbl.textContent = 'Đang tải ảnh…';
+  const images = [];
+  for(const slide of slides){
+    const img = await loadImageAsync(slide.src);
+    images.push(img);
+  }
+
+  // Setup recorder
+  const stream = canvas.captureStream(30);
+  let mimeType = '';
+  const types = ['video/mp4;codecs=avc1.42E01E','video/mp4','video/webm;codecs=vp9','video/webm;codecs=vp8','video/webm'];
+  for(const t of types){ if(MediaRecorder.isTypeSupported(t)){ mimeType = t; break; }}
+  const isMP4 = mimeType.startsWith('video/mp4');
+
+  const recorder = new MediaRecorder(stream, { mimeType, videoBitsPerSecond: 4000000 });
+  const chunks = [];
+  recorder.ondataavailable = e => { if(e.data.size) chunks.push(e.data); };
+
+  const videoResult = await new Promise((resolve) => {
+    recorder.onstop = () => {
+      const blob = new Blob(chunks, { type: isMP4 ? 'video/mp4' : 'video/webm' });
+      resolve({ url: URL.createObjectURL(blob), ext: isMP4 ? 'mp4' : 'webm' });
+    };
+
+    recorder.start(100);
+
+    let slideIdx = 0;
+    let recording = true;
+
+    function drawCurrentSlide(){
+      const img = images[slideIdx];
+      const slide = slides[slideIdx];
+      ctx.clearRect(0, 0, W, H);
+      ctx.fillStyle = '#070B16';
+      ctx.fillRect(0, 0, W, H);
+
+      // Cover fit
+      const scale = Math.max(W / img.width, H / img.height);
+      const nw = img.width * scale, nh = img.height * scale;
+      ctx.drawImage(img, (W - nw)/2, (H - nh)/2, nw, nh);
+
+      // Subtitle
+      if(slide.subtitle && slide.subtitle.trim()){
+        drawSubtitle(ctx, slide.subtitle, W, H);
+      }
+    }
+
+    function nextSlide(){
+      if(slideIdx >= slides.length){
+        setTimeout(() => { recording = false; recorder.stop(); }, 200);
+        return;
+      }
+      progressLbl.textContent = 'Đang ghi slide ' + (slideIdx+1) + '/' + slides.length + '…';
+      drawCurrentSlide();
+      slideIdx++;
+      setTimeout(nextSlide, msPerSlide);
+    }
+
+    // Keep drawing frames for recorder
+    function frameLoop(){
+      if(!recording) return;
+      if(slideIdx > 0 && slideIdx <= slides.length){
+        // Redraw current
+        const prevIdx = slideIdx - 1;
+        const img = images[prevIdx];
+        const slide = slides[prevIdx];
+        ctx.clearRect(0, 0, W, H);
+        ctx.fillStyle = '#070B16';
+        ctx.fillRect(0, 0, W, H);
+        const sc = Math.max(W/img.width, H/img.height);
+        ctx.drawImage(img, (W-img.width*sc)/2, (H-img.height*sc)/2, img.width*sc, img.height*sc);
+        if(slide.subtitle && slide.subtitle.trim()) drawSubtitle(ctx, slide.subtitle, W, H);
+      }
+      requestAnimationFrame(frameLoop);
+    }
+
+    nextSlide();
+    frameLoop();
+  });
+
+  // Done
+  progress.classList.remove('show');
+  genVideoBtn.disabled = false;
+
+  const resultEl = document.getElementById('videoResult');
+  const videoEl = document.getElementById('resultVideo');
+  videoEl.src = videoResult.url;
+  videoEl.play().catch(()=>{});
+  resultEl.classList.add('show');
+
+  // Store for download
+  window._videoUrl = videoResult.url;
+  window._videoExt = videoResult.ext;
+});
+
+function loadImageAsync(src){
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = () => resolve(img);
+    img.onerror = () => reject(new Error('Không tải được ảnh'));
+    img.src = src;
+  });
+}
+
+// Download video
+document.getElementById('dlVideoBtn').addEventListener('click', () => {
+  if(!window._videoUrl) return;
+  const a = document.createElement('a');
+  a.href = window._videoUrl;
+  a.download = 'StyleReel_video_' + Date.now() + '.' + (window._videoExt || 'webm');
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+});
+
+// =============================================
+// Init: load saved images
+// =============================================
+loadSavedImages();
+</script>
+</body>
+</html>
