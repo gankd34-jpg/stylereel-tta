@@ -1,0 +1,1492 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>StyleReel Studio — AI Fashion Generator</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#080812;--s1:rgba(255,255,255,.04);--s2:rgba(255,255,255,.07);
+  --b1:rgba(255,255,255,.08);--b2:rgba(255,255,255,.15);
+  --blue:#3b82f6;--bld:rgba(59,130,246,.14);--blg:rgba(59,130,246,.35);
+  --purple:#8b5cf6;--green:#22c55e;--red:#ef4444;--amber:#f59e0b;
+  --txt:#eaeaea;--m1:#999;--m2:#666;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Manrope',sans-serif;background:var(--bg);color:var(--txt);min-height:100vh}
+
+/* ── HEADER ── */
+header{display:flex;align-items:center;justify-content:space-between;
+  padding:13px 28px;border-bottom:1px solid var(--b1);
+  background:rgba(8,8,18,.9);backdrop-filter:blur(20px);
+  position:sticky;top:0;z-index:200}
+.logo{font-family:'Space Grotesk',sans-serif;font-size:18px;font-weight:700;
+  background:linear-gradient(135deg,#3b82f6,#8b5cf6);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.badge{background:rgba(59,130,246,.2);border:1px solid rgba(59,130,246,.4);
+  color:#93c5fd;font-size:10px;padding:2px 8px;border-radius:20px;font-weight:700;
+  -webkit-text-fill-color:#93c5fd;margin-left:8px}
+.hdr-acts{display:flex;align-items:center;gap:10px}
+.btn-hdr{background:var(--s2);border:1px solid var(--b1);color:var(--txt);
+  padding:7px 14px;border-radius:8px;cursor:pointer;font-size:12px;
+  font-family:'Manrope',sans-serif;transition:all .2s}
+.btn-hdr:hover{border-color:var(--blue);color:var(--blue)}
+.back-link{color:var(--m1);text-decoration:none;font-size:20px;margin-right:8px;
+  line-height:1;transition:color .2s}
+.back-link:hover{color:var(--txt)}
+
+/* ── LAYOUT ── */
+.layout{display:grid;grid-template-columns:370px 1fr;gap:18px;
+  padding:18px 28px;max-width:1500px;margin:0 auto}
+@media(max-width:960px){.layout{grid-template-columns:1fr;padding:14px}}
+
+/* ── PANEL ── */
+.panel{background:var(--s1);border:1px solid var(--b1);border-radius:16px;padding:16px}
+.panel+.panel{margin-top:13px}
+.ptitle{font-size:11px;font-weight:700;color:var(--m1);
+  text-transform:uppercase;letter-spacing:.1em;margin-bottom:13px;
+  display:flex;align-items:center;gap:7px}
+.ptitle span{font-size:16px}
+
+/* ── LEFT ── */
+.left{display:flex;flex-direction:column}
+
+/* ── MODEL LIBRARY ── */
+.model-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.mcard{border-radius:12px;border:2px solid var(--b1);overflow:hidden;
+  cursor:pointer;transition:all .2s;position:relative;aspect-ratio:3/4;
+  background:rgba(0,0,0,.3)}
+.mcard:hover{border-color:var(--blue)}
+.mcard.sel{border-color:var(--blue);box-shadow:0 0 0 1px var(--blue)}
+.mcard img,.mcard .mcard-ph{width:100%;height:100%;object-fit:cover}
+.mcard-ph{display:flex;flex-direction:column;align-items:center;
+  justify-content:center;gap:4px;background:linear-gradient(160deg,#1a1a2e,#16213e)}
+.mcard-ph svg{opacity:.4}
+.mcard-name{position:absolute;bottom:0;left:0;right:0;
+  background:linear-gradient(transparent,rgba(0,0,0,.85));
+  padding:16px 6px 6px;font-size:10px;font-weight:700;text-align:center}
+.mcard-sel-ring{position:absolute;inset:0;border-radius:10px;
+  border:2px solid var(--blue);display:none}
+.mcard.sel .mcard-sel-ring{display:block}
+.mcard-badge{position:absolute;top:5px;left:5px;
+  background:var(--blue);color:#fff;font-size:9px;padding:2px 6px;
+  border-radius:20px;font-weight:700}
+.btn-set-model{position:absolute;top:5px;right:5px;
+  background:rgba(0,0,0,.7);border:1px solid var(--b2);color:var(--txt);
+  font-size:9px;padding:2px 7px;border-radius:6px;cursor:pointer;
+  transition:all .2s;font-family:'Manrope',sans-serif}
+.btn-set-model:hover{background:var(--blue);border-color:var(--blue)}
+
+/* ── PRODUCT UPLOAD ── */
+.prod-toggle{display:flex;gap:6px;margin-bottom:12px}
+.ptbtn{flex:1;padding:7px;border-radius:8px;border:1px solid var(--b1);
+  background:var(--s2);color:var(--m1);font-size:11px;font-weight:600;
+  cursor:pointer;transition:all .2s;font-family:'Manrope',sans-serif}
+.ptbtn.active{border-color:var(--blue);color:var(--blue);background:var(--bld)}
+.prod-zones{display:grid;gap:10px}
+.prod-zones.two{grid-template-columns:1fr 1fr}
+.prod-zones.one{grid-template-columns:1fr}
+
+/* upload zone */
+.zone{position:relative;border:2px dashed var(--b1);border-radius:12px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  cursor:pointer;overflow:hidden;background:rgba(0,0,0,.2);
+  transition:all .2s;min-height:150px}
+.zone:hover{border-color:var(--blue);background:var(--bld)}
+.zone.has{border-style:solid;border-color:var(--blue)}
+.zone.drag{border-color:var(--blue);background:var(--bld);transform:scale(1.02)}
+.zone img.prev{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.z-ico{font-size:24px;margin-bottom:4px}
+.z-lbl{font-size:11px;font-weight:700;color:var(--blue);text-transform:uppercase;letter-spacing:.05em}
+.z-hint{font-size:10px;color:var(--m2);text-align:center;margin-top:3px;padding:0 8px}
+.zone-ov{position:absolute;inset:0;background:rgba(0,0,0,.72);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:6px;opacity:0;transition:opacity .2s}
+.zone.has:hover .zone-ov{opacity:1}
+.zone-ov button{background:rgba(59,130,246,.4);border:1px solid var(--blue);
+  color:#fff;padding:5px 10px;border-radius:7px;cursor:pointer;font-size:10px;
+  width:80px;font-family:'Manrope',sans-serif;transition:background .2s}
+.zone-ov button:hover{background:var(--blue)}
+.z-acts{display:none;gap:5px;margin-top:6px}
+.z-acts.show{display:flex}
+.btn-crop,.btn-del{flex:1;padding:5px;border-radius:7px;border:1px solid var(--b1);
+  background:var(--s2);color:var(--txt);font-size:10px;cursor:pointer;
+  transition:all .2s;font-family:'Manrope',sans-serif}
+.btn-crop:hover{border-color:var(--blue);color:var(--blue)}
+.btn-del:hover{border-color:var(--red);color:var(--red)}
+
+/* ── BACKGROUND GALLERY ── */
+.bg-gallery{display:grid;grid-template-columns:repeat(4,1fr);gap:7px}
+.bgcard{border-radius:10px;border:2px solid var(--b1);overflow:hidden;
+  cursor:pointer;transition:all .2s;position:relative;aspect-ratio:9/16}
+.bgcard:hover{border-color:var(--blue);transform:scale(1.03)}
+.bgcard.sel{border-color:var(--blue);box-shadow:0 0 0 1px var(--blue)}
+.bgcard img,.bgcard .bg-ph{width:100%;height:100%;object-fit:cover;display:block}
+.bg-ph{display:flex;align-items:center;justify-content:center;font-size:22px}
+.bg-name{position:absolute;bottom:0;left:0;right:0;
+  background:linear-gradient(transparent,rgba(0,0,0,.9));
+  padding:14px 4px 4px;font-size:9px;font-weight:700;text-align:center;line-height:1.3}
+.bg-sel-ring{position:absolute;inset:0;border-radius:8px;
+  border:2px solid var(--blue);pointer-events:none;display:none}
+.bgcard.sel .bg-sel-ring{display:block}
+.bgcard.sel::after{content:'✓';position:absolute;top:4px;right:4px;
+  width:16px;height:16px;background:var(--blue);border-radius:50%;
+  display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700}
+.bg-cats{display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap}
+.cat-btn{padding:4px 10px;border-radius:20px;border:1px solid var(--b1);
+  background:none;color:var(--m1);font-size:10px;cursor:pointer;
+  font-family:'Manrope',sans-serif;transition:all .2s}
+.cat-btn.active{border-color:var(--blue);color:var(--blue);background:var(--bld)}
+
+/* ── SETTINGS ── */
+.form-row{display:flex;flex-direction:column;gap:5px;margin-bottom:10px}
+.form-row label{font-size:11px;color:var(--m1);font-weight:600}
+select,input,textarea{background:rgba(0,0,0,.35);border:1px solid var(--b1);
+  border-radius:8px;color:var(--txt);padding:7px 11px;font-size:12px;
+  font-family:'Manrope',sans-serif;outline:none;transition:border-color .2s;width:100%}
+select:focus,input:focus,textarea:focus{border-color:var(--blue)}
+textarea{resize:vertical}
+
+/* ── GENERATE BTN ── */
+.btn-gen{width:100%;padding:13px;background:linear-gradient(135deg,#3b82f6,#8b5cf6);
+  border:none;border-radius:12px;color:#fff;font-size:15px;font-weight:700;
+  cursor:pointer;font-family:'Space Grotesk',sans-serif;transition:all .3s;
+  display:flex;align-items:center;justify-content:center;gap:8px}
+.btn-gen:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 8px 28px var(--blg)}
+.btn-gen:disabled{opacity:.4;cursor:not-allowed;transform:none}
+@keyframes bpulse{0%,100%{box-shadow:0 0 20px var(--blg)}50%{box-shadow:0 0 40px rgba(139,92,246,.5)}}
+.btn-gen.loading{animation:bpulse 1.4s ease infinite}
+.gen-hint{text-align:center;font-size:11px;color:var(--m2);margin-top:7px}
+
+/* ── RIGHT ── */
+.right{display:flex;flex-direction:column;gap:14px}
+
+/* ── PIPELINE ── */
+.pipeline{background:var(--s1);border:1px solid var(--b1);border-radius:14px;
+  padding:13px 18px;display:flex;align-items:center;overflow-x:auto}
+.ps{flex:1;display:flex;align-items:center;gap:7px;position:relative;min-width:0}
+.ps:not(:last-child)::after{content:'';position:absolute;left:32px;right:0;top:16px;
+  height:2px;background:var(--b1);transition:background .4s}
+.ps.active::after{background:linear-gradient(90deg,var(--blue),transparent)}
+.ps.done::after{background:var(--green)}
+.ps-ico{width:32px;height:32px;border-radius:50%;background:var(--s2);
+  border:2px solid var(--b1);display:flex;align-items:center;justify-content:center;
+  font-size:13px;z-index:1;flex-shrink:0;transition:all .3s}
+.ps.active .ps-ico{border-color:var(--blue);background:var(--bld)}
+.ps.done .ps-ico{border-color:var(--green);background:rgba(34,197,94,.15)}
+.ps-info{flex:1;min-width:0}
+.ps-name{font-size:10px;font-weight:700;color:var(--m1);white-space:nowrap}
+.ps-stat{font-size:10px;color:var(--m2);white-space:nowrap}
+.ps.active .ps-name,.ps.active .ps-stat{color:var(--blue)}
+.ps.done .ps-name{color:var(--green)}
+
+/* ── OUTPUT ── */
+.out-box{background:var(--s1);border:1px solid var(--b1);border-radius:16px;padding:16px;flex:1}
+.out-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:13px}
+.out-title{font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:700}
+.out-acts{display:flex;gap:7px}
+.btn-sec{padding:6px 13px;background:var(--s2);border:1px solid var(--b1);
+  border-radius:8px;color:var(--txt);font-size:11px;cursor:pointer;
+  transition:all .2s;font-family:'Manrope',sans-serif}
+.btn-sec:hover{border-color:var(--blue);color:var(--blue)}
+
+/* output image container */
+.out-img-wrap{border-radius:12px;overflow:hidden;background:rgba(0,0,0,.3);
+  border:1px solid var(--b1);min-height:320px;display:flex;
+  align-items:center;justify-content:center;position:relative}
+.out-img-wrap img{max-width:100%;border-radius:12px;display:block}
+.out-ph{display:flex;flex-direction:column;align-items:center;gap:10px;
+  color:var(--m2);padding:40px}
+.out-ph .ph-grid{display:grid;grid-template-columns:1fr 1fr;gap:3px;opacity:.25}
+.out-ph .ph-cell{width:50px;height:89px;background:var(--s2);border-radius:4px}
+
+/* Gemini JSON panel */
+.json-panel{background:rgba(0,0,0,.4);border:1px solid var(--b1);border-radius:10px;
+  padding:12px;margin-top:12px}
+.json-panel summary{font-size:11px;color:var(--m1);cursor:pointer;
+  list-style:none;display:flex;align-items:center;gap:6px;font-weight:600}
+.json-panel summary::-webkit-details-marker{display:none}
+.json-panel pre{font-family:'Courier New',monospace;font-size:10px;
+  color:#4ade80;max-height:250px;overflow-y:auto;margin-top:10px;
+  white-space:pre-wrap;word-break:break-word}
+.prompt-edit{width:100%;background:rgba(0,0,0,.35);border:1px solid var(--b1);
+  border-radius:8px;color:var(--txt);padding:10px;font-size:11px;
+  font-family:'Courier New',monospace;resize:vertical;min-height:100px;
+  outline:none;margin-top:8px;transition:border-color .2s;line-height:1.5}
+.prompt-edit:focus{border-color:var(--blue)}
+
+/* ── TOOLS TABS ── */
+.tools{background:var(--s1);border:1px solid var(--b1);border-radius:16px;overflow:hidden}
+.tabs{display:flex;border-bottom:1px solid var(--b1)}
+.tab{flex:1;padding:11px;background:none;border:none;color:var(--m1);font-size:11px;
+  font-weight:600;cursor:pointer;transition:all .2s;border-bottom:2px solid transparent;
+  font-family:'Manrope',sans-serif}
+.tab.active{color:var(--blue);border-bottom-color:var(--blue);background:var(--bld)}
+.tbody{display:none;padding:16px}
+.tbody.active{display:block}
+
+/* ── MERGE TOOL ── */
+.merge-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:7px;margin-bottom:10px}
+.mcell{aspect-ratio:9/16;border:2px dashed var(--b1);border-radius:10px;
+  display:flex;align-items:center;justify-content:center;cursor:pointer;
+  position:relative;overflow:hidden;transition:border-color .2s}
+.mcell:hover{border-color:var(--blue)}
+.mcell img.mp{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.mcell-n{width:22px;height:22px;border-radius:50%;background:var(--s2);
+  border:1px solid var(--b1);display:flex;align-items:center;justify-content:center;
+  font-size:11px;font-weight:700;color:var(--m1)}
+.mcell-del{position:absolute;top:4px;right:4px;width:18px;height:18px;
+  border-radius:50%;background:rgba(239,68,68,.85);border:none;color:#fff;
+  font-size:10px;cursor:pointer;z-index:10;line-height:1}
+
+/* ── TTS TOOL ── */
+.voices-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;
+  max-height:140px;overflow-y:auto;margin-bottom:10px}
+.vcard{padding:8px;border:1px solid var(--b1);border-radius:8px;cursor:pointer;transition:all .2s}
+.vcard:hover,.vcard.sel{border-color:var(--blue);background:var(--bld)}
+.vcard-name{font-size:11px;font-weight:700}
+.vcard-sub{font-size:10px;color:var(--m2)}
+.err-box{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);
+  border-radius:8px;padding:10px;font-size:11px;color:#fca5a5;display:none;margin-top:8px}
+.info-box{background:var(--bld);border:1px solid rgba(59,130,246,.3);
+  border-radius:8px;padding:10px;font-size:11px;color:#93c5fd}
+audio{width:100%;margin-top:8px;border-radius:8px}
+
+/* ── MODALS ── */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.83);backdrop-filter:blur(10px);
+  z-index:900;display:flex;align-items:center;justify-content:center;
+  opacity:0;pointer-events:none;transition:opacity .25s}
+.overlay.open{opacity:1;pointer-events:all}
+.modal{background:#0b0b1a;border:1px solid var(--b2);border-radius:20px;
+  padding:22px;width:92%;transform:scale(.95);transition:transform .25s;
+  max-height:90vh;overflow-y:auto}
+.overlay.open .modal{transform:scale(1)}
+.modal-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+.modal-title{font-family:'Space Grotesk',sans-serif;font-size:16px;font-weight:700}
+.modal-x{width:28px;height:28px;border-radius:7px;border:1px solid var(--b1);
+  background:none;color:var(--m1);cursor:pointer;font-size:14px;
+  display:flex;align-items:center;justify-content:center;transition:all .2s}
+.modal-x:hover{border-color:var(--red);color:var(--red)}
+
+/* crop */
+.crop-wrap{position:relative;overflow:hidden;border-radius:10px;
+  background:#000;display:flex;align-items:center;justify-content:center;max-height:55vh}
+#cropCanvas{max-width:100%;max-height:55vh;display:block}
+#cropBox{position:absolute;border:2px solid var(--blue);
+  box-shadow:0 0 0 9999px rgba(0,0,0,.55);cursor:move;user-select:none}
+.ratio-btns{display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap}
+.rbtn{padding:4px 12px;border:1px solid var(--b1);border-radius:7px;
+  background:none;color:var(--m1);font-size:11px;cursor:pointer;transition:all .2s;
+  font-family:'Manrope',sans-serif}
+.rbtn.active{border-color:var(--blue);color:var(--blue);background:var(--bld)}
+.crop-acts{display:flex;gap:7px;margin-top:10px}
+
+/* spinners */
+@keyframes spin{to{transform:rotate(360deg)}}
+.spin{display:inline-block;width:18px;height:18px;border:2px solid rgba(255,255,255,.2);
+  border-top-color:#fff;border-radius:50%;animation:spin .75s linear infinite}
+.spin-lg{width:44px;height:44px;border-width:3px;
+  border-color:rgba(59,130,246,.2);border-top-color:var(--blue)}
+
+/* toasts */
+#toasts{position:fixed;bottom:20px;right:20px;z-index:2000;display:flex;flex-direction:column;gap:6px}
+.toast{padding:10px 16px;border-radius:10px;font-size:12px;font-weight:600;
+  display:flex;align-items:center;gap:8px;animation:slin .3s ease}
+.toast.ok{background:rgba(34,197,94,.2);border:1px solid rgba(34,197,94,.4);color:#86efac}
+.toast.err{background:rgba(239,68,68,.2);border:1px solid rgba(239,68,68,.4);color:#fca5a5}
+.toast.inf{background:rgba(59,130,246,.2);border:1px solid rgba(59,130,246,.4);color:#93c5fd}
+@keyframes slin{from{transform:translateX(100%);opacity:0}to{transform:translateX(0);opacity:1}}
+
+/* log */
+.log-box{background:rgba(0,0,0,.4);border:1px solid var(--b1);border-radius:10px;
+  max-height:100px;overflow-y:auto;padding:8px 10px;margin-top:10px}
+.log-line{font-family:'Courier New',monospace;font-size:10px;color:var(--m1);
+  padding:1px 0;line-height:1.5}
+.log-line.ok{color:#86efac}.log-line.err{color:#fca5a5}.log-line.warn{color:#fcd34d}
+
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--b2);border-radius:3px}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div style="display:flex;align-items:center">
+    <a href="index.html" class="back-link">←</a>
+    <span class="logo">StyleReel Studio</span>
+    <span class="badge">BETA</span>
+  </div>
+  <div class="hdr-acts">
+    <span id="apiStatus" style="font-size:11px;color:var(--m2)">Chưa có API key</span>
+    <button class="btn-hdr" onclick="openModal('settingsModal')">⚙ API Keys</button>
+  </div>
+</header>
+
+<!-- MAIN LAYOUT -->
+<div class="layout">
+
+<!-- ══════════ LEFT PANEL ══════════ -->
+<div class="left">
+
+  <!-- 1. NGƯỜI MẪU (Fixed) -->
+  <div class="panel">
+    <div class="ptitle"><span>👤</span> Người mẫu <span style="color:var(--m2);font-size:10px;font-weight:400;text-transform:none;letter-spacing:0">(cố định)</span></div>
+    <div class="model-grid" id="modelGrid">
+      <!-- Populated by JS -->
+    </div>
+    <p style="font-size:10px;color:var(--m2);margin-top:8px;text-align:center">
+      Click <strong style="color:var(--m1)">Đặt ảnh</strong> để tải ảnh KOL · ảnh được lưu cục bộ
+    </p>
+  </div>
+
+  <!-- 2. SẢN PHẨM (User Upload) -->
+  <div class="panel">
+    <div class="ptitle"><span>👗</span> Sản phẩm</div>
+    <div class="prod-toggle">
+      <button class="ptbtn active" id="pt-single" onclick="setProdType('single')">1 ảnh — Cả bộ</button>
+      <button class="ptbtn" id="pt-two" onclick="setProdType('two')">2 ảnh — Áo + Quần</button>
+    </div>
+
+    <!-- Single -->
+    <div id="prod-single">
+      <div class="zone" id="zone-p1"
+        onclick="triggerUpload('p1')"
+        ondragover="onDrag(event,'p1')" ondragleave="onDragLeave('p1')" ondrop="onDrop(event,'p1')">
+        <div class="z-ico">🧥</div>
+        <div class="z-lbl">Cả bộ outfit</div>
+        <div class="z-hint">Màu sắc, chất liệu, chi tiết thiết kế</div>
+        <div class="zone-ov">
+          <button onclick="event.stopPropagation();triggerUpload('p1')">Đổi ảnh</button>
+          <button onclick="event.stopPropagation();openCropFor('p1')">✂ Cắt</button>
+        </div>
+      </div>
+      <div class="z-acts" id="act-p1">
+        <button class="btn-crop" onclick="openCropFor('p1')">✂ Cắt ảnh</button>
+        <button class="btn-del" onclick="removeImg('p1')">✕ Xóa</button>
+      </div>
+    </div>
+
+    <!-- Two separate -->
+    <div id="prod-two" style="display:none">
+      <div class="prod-zones two">
+        <div>
+          <div class="zone" id="zone-p1"
+            onclick="triggerUpload('p1')"
+            ondragover="onDrag(event,'p1')" ondragleave="onDragLeave('p1')" ondrop="onDrop(event,'p1')">
+            <div class="z-ico">👔</div>
+            <div class="z-lbl">Áo (Top)</div>
+            <div class="z-hint">Áo, áo khoác, blouse...</div>
+            <div class="zone-ov">
+              <button onclick="event.stopPropagation();triggerUpload('p1')">Đổi</button>
+              <button onclick="event.stopPropagation();openCropFor('p1')">✂</button>
+            </div>
+          </div>
+          <div class="z-acts" id="act-p1-2">
+            <button class="btn-crop" onclick="openCropFor('p1')">✂</button>
+            <button class="btn-del" onclick="removeImg('p1')">✕</button>
+          </div>
+        </div>
+        <div>
+          <div class="zone" id="zone-p2"
+            onclick="triggerUpload('p2')"
+            ondragover="onDrag(event,'p2')" ondragleave="onDragLeave('p2')" ondrop="onDrop(event,'p2')">
+            <div class="z-ico">👖</div>
+            <div class="z-lbl">Quần/Váy</div>
+            <div class="z-hint">Quần, váy, chân váy...</div>
+            <div class="zone-ov">
+              <button onclick="event.stopPropagation();triggerUpload('p2')">Đổi</button>
+              <button onclick="event.stopPropagation();openCropFor('p2')">✂</button>
+            </div>
+          </div>
+          <div class="z-acts" id="act-p2">
+            <button class="btn-crop" onclick="openCropFor('p2')">✂</button>
+            <button class="btn-del" onclick="removeImg('p2')">✕</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. PHÔNG NỀN (Preset Gallery) -->
+  <div class="panel">
+    <div class="ptitle"><span>🏙</span> Phông nền</div>
+    <div class="bg-cats" id="bgCats">
+      <button class="cat-btn active" onclick="filterBg('all',this)">Tất cả</button>
+      <button class="cat-btn" onclick="filterBg('studio',this)">Studio</button>
+      <button class="cat-btn" onclick="filterBg('outdoor',this)">Ngoài trời</button>
+      <button class="cat-btn" onclick="filterBg('indoor',this)">Trong nhà</button>
+      <button class="cat-btn" onclick="filterBg('nature',this)">Thiên nhiên</button>
+    </div>
+    <div class="bg-gallery" id="bgGallery">
+      <!-- Populated by JS -->
+    </div>
+    <p id="bgSelLabel" style="font-size:11px;color:var(--blue);margin-top:8px;font-weight:600;text-align:center;display:none">
+      ✓ Đã chọn: <span id="bgSelName"></span>
+    </p>
+  </div>
+
+  <!-- 4. CÀI ĐẶT -->
+  <div class="panel" style="display:flex;flex-direction:column;gap:9px">
+    <div class="ptitle"><span>⚡</span> Phong cách & chất lượng</div>
+    <div class="form-row" style="margin-bottom:0">
+      <label>Phong cách chụp</label>
+      <select id="styleMode">
+        <option value="editorial">Editorial fashion</option>
+        <option value="commercial">Commercial / catalogue</option>
+        <option value="streetwear">Streetwear lookbook</option>
+        <option value="luxe">High-end luxury</option>
+        <option value="casual">Casual lifestyle</option>
+        <option value="kol">KOL viral content</option>
+      </select>
+    </div>
+    <div class="form-row" style="margin-bottom:0">
+      <label>Ghi chú thêm <span style="color:var(--m2)">(tùy chọn)</span></label>
+      <textarea id="extraNotes" rows="2" placeholder="VD: chụp theo phong cách Hàn Quốc, tone màu pastel..."></textarea>
+    </div>
+  </div>
+
+  <!-- GENERATE -->
+  <div style="padding:0 0 4px">
+    <button class="btn-gen" id="genBtn" onclick="startGenerate()" disabled>
+      <span>✨</span><span>Tạo ảnh AI</span>
+    </button>
+    <div class="gen-hint" id="genHint">Chọn người mẫu · Upload sản phẩm · Chọn phông nền</div>
+  </div>
+
+</div><!-- /left -->
+
+<!-- ══════════ RIGHT PANEL ══════════ -->
+<div class="right">
+
+  <!-- Pipeline -->
+  <div class="pipeline">
+    <div class="ps" id="ps1">
+      <div class="ps-ico">📤</div>
+      <div class="ps-info"><div class="ps-name">Chuẩn bị</div><div class="ps-stat">Ảnh & dữ liệu</div></div>
+    </div>
+    <div class="ps" id="ps2">
+      <div class="ps-ico">🧠</div>
+      <div class="ps-info"><div class="ps-name">Gemini 2.0</div><div class="ps-stat">Phân tích</div></div>
+    </div>
+    <div class="ps" id="ps3">
+      <div class="ps-ico">🎨</div>
+      <div class="ps-info"><div class="ps-name">GPT image-1</div><div class="ps-stat">Tạo ảnh</div></div>
+    </div>
+    <div class="ps" id="ps4">
+      <div class="ps-ico">✅</div>
+      <div class="ps-info"><div class="ps-name">Output</div><div class="ps-stat">Hoàn thành</div></div>
+    </div>
+  </div>
+
+  <!-- Output -->
+  <div class="out-box">
+    <div class="out-hdr">
+      <div class="out-title">📸 Output · 9:16 · 2×2 Grid · 4 Pose · Không lộ mặt</div>
+      <div class="out-acts">
+        <button class="btn-sec" onclick="dlResult()">⬇ Tải ảnh</button>
+        <button class="btn-sec" onclick="sendToMerge()">→ Merge</button>
+      </div>
+    </div>
+
+    <!-- Main output image (single 2x2 grid from GPT) -->
+    <div class="out-img-wrap" id="outWrap">
+      <div class="out-ph">
+        <div class="ph-grid">
+          <div class="ph-cell"></div><div class="ph-cell"></div>
+          <div class="ph-cell"></div><div class="ph-cell"></div>
+        </div>
+        <p style="font-size:12px;color:var(--m2);margin-top:10px">Ảnh 2×2 grid sẽ hiện ở đây</p>
+      </div>
+    </div>
+
+    <!-- Gemini JSON + editable prompt -->
+    <details class="json-panel" id="geminiPanel" style="display:none">
+      <summary>📊 Kết quả Gemini — JSON phân tích & prompt (có thể chỉnh)</summary>
+      <pre id="geminiJson"></pre>
+      <p style="font-size:10px;color:var(--m1);margin:8px 0 4px;font-weight:600">📝 Final prompt gửi GPT (chỉnh nếu cần trước khi tạo):</p>
+      <textarea class="prompt-edit" id="finalPrompt" rows="5"></textarea>
+      <button class="btn-sec" style="margin-top:6px;width:100%" onclick="rerunGPT()">🔄 Tạo lại với prompt đã chỉnh</button>
+    </details>
+
+    <!-- Log -->
+    <div class="log-box" id="logBox">
+      <div class="log-line">Sẵn sàng...</div>
+    </div>
+  </div>
+
+  <!-- Tools Tabs -->
+  <div class="tools">
+    <div class="tabs">
+      <button class="tab active" onclick="switchTab('merge')">🔗 Ghép ảnh 2×2</button>
+      <button class="tab" onclick="switchTab('tts')">🎙 Voiceover AI</button>
+    </div>
+
+    <!-- MERGE -->
+    <div class="tbody active" id="tab-merge">
+      <p style="font-size:11px;color:var(--m1);margin-bottom:10px">Ghép 4 ảnh thành lưới 2×2 tỉ lệ 9:16 · kéo thả hoặc click</p>
+      <div class="merge-grid">
+        <div class="mcell" id="m0" onclick="triggerMerge(0)" ondragover="mDragOver(event,0)" ondragleave="mDragLeave(0)" ondrop="mDrop(event,0)"><div class="mcell-n">1</div></div>
+        <div class="mcell" id="m1" onclick="triggerMerge(1)" ondragover="mDragOver(event,1)" ondragleave="mDragLeave(1)" ondrop="mDrop(event,1)"><div class="mcell-n">2</div></div>
+        <div class="mcell" id="m2" onclick="triggerMerge(2)" ondragover="mDragOver(event,2)" ondragleave="mDragLeave(2)" ondrop="mDrop(event,2)"><div class="mcell-n">3</div></div>
+        <div class="mcell" id="m3" onclick="triggerMerge(3)" ondragover="mDragOver(event,3)" ondragleave="mDragLeave(3)" ondrop="mDrop(event,3)"><div class="mcell-n">4</div></div>
+      </div>
+      <div style="display:flex;gap:7px">
+        <button class="btn-sec" onclick="clearMerge()">Xóa tất cả</button>
+        <button class="btn-gen" style="flex:1;padding:9px;font-size:12px" onclick="exportMerge()">⬇ Export Grid 9:16</button>
+      </div>
+      <canvas id="mergeCanvas" style="display:none"></canvas>
+    </div>
+
+    <!-- TTS -->
+    <div class="tbody" id="tab-tts">
+      <p style="font-size:11px;color:var(--m1);margin-bottom:10px">Tạo giọng đọc quảng cáo bằng ElevenLabs · hỗ trợ tiếng Việt</p>
+      <div class="form-row" style="margin-bottom:10px">
+        <label>Script quảng cáo</label>
+        <textarea id="ttsText" rows="3" placeholder="VD: Chiếc váy hoa nhẹ nhàng này sẽ là lựa chọn hoàn hảo cho ngày hè..."></textarea>
+      </div>
+      <div style="margin-bottom:10px">
+        <label style="font-size:11px;color:var(--m1);font-weight:600;display:block;margin-bottom:6px">Chọn giọng</label>
+        <div class="voices-grid" id="voiceGrid">
+          <div style="grid-column:1/-1;text-align:center;padding:14px;color:var(--m2)">
+            <div class="spin" style="margin:0 auto 6px;width:18px;height:18px"></div>Đang tải...
+          </div>
+        </div>
+      </div>
+      <button class="btn-gen" style="padding:9px;font-size:12px" onclick="generateTTS(this)">
+        <span>🎙</span><span>Tạo Voiceover</span>
+      </button>
+      <div id="ttsResult" style="display:none">
+        <audio id="ttsAudio" controls></audio>
+        <button class="btn-sec" style="width:100%;margin-top:6px" onclick="downloadTTS()">⬇ Tải .mp3</button>
+      </div>
+      <div class="err-box" id="ttsErr"></div>
+    </div>
+  </div>
+
+</div><!-- /right -->
+</div><!-- /layout -->
+
+<!-- ═══ HIDDEN INPUTS ═══ -->
+<input type="file" id="fi-p1" accept="image/*" style="display:none" onchange="onFile(event,'p1')">
+<input type="file" id="fi-p2" accept="image/*" style="display:none" onchange="onFile(event,'p2')">
+<input type="file" id="fi-model" accept="image/*" style="display:none" onchange="onModelFile(event)">
+<input type="file" id="fi-merge" accept="image/*" style="display:none" onchange="onMergeFile(event)">
+
+<!-- ═══ CROP MODAL ═══ -->
+<div class="overlay" id="cropModal">
+  <div class="modal" style="max-width:700px">
+    <div class="modal-hdr">
+      <div class="modal-title">✂ Cắt ảnh</div>
+      <button class="modal-x" onclick="closeModal('cropModal')">✕</button>
+    </div>
+    <div class="ratio-btns">
+      <button class="rbtn active" onclick="setRatio(9,16,this)">9:16</button>
+      <button class="rbtn" onclick="setRatio(1,1,this)">1:1</button>
+      <button class="rbtn" onclick="setRatio(4,5,this)">4:5</button>
+      <button class="rbtn" onclick="setRatio(16,9,this)">16:9</button>
+      <button class="rbtn" onclick="setRatio(0,0,this)">Tự do</button>
+    </div>
+    <div class="crop-wrap">
+      <canvas id="cropCanvas"></canvas>
+      <div id="cropBox"></div>
+    </div>
+    <div class="crop-acts">
+      <button class="btn-sec" style="flex:1" onclick="resetCropBox()">↺ Reset</button>
+      <button class="btn-gen" style="flex:2;padding:9px;font-size:13px" onclick="confirmCrop()">✓ Áp dụng</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ SETTINGS MODAL ═══ -->
+<div class="overlay" id="settingsModal">
+  <div class="modal" style="max-width:500px">
+    <div class="modal-hdr">
+      <div class="modal-title">⚙ Cài đặt API Keys</div>
+      <button class="modal-x" onclick="closeModal('settingsModal')">✕</button>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:12px">
+      <div class="form-row" style="margin-bottom:0">
+        <label>🧠 Gemini API Key <span style="color:#86efac;font-weight:400">(miễn phí · phân tích ảnh)</span></label>
+        <input type="password" id="s-gem" placeholder="AIza...">
+        <span style="font-size:10px;color:var(--m2)">Lấy tại aistudio.google.com/apikey</span>
+      </div>
+      <div class="form-row" style="margin-bottom:0">
+        <label>🎨 OpenAI API Key <span style="color:#fcd34d;font-weight:400">(trả phí · GPT image-1)</span></label>
+        <input type="password" id="s-oai" placeholder="sk-...">
+      </div>
+      <div class="form-row" style="margin-bottom:0">
+        <label>🎙 ElevenLabs API Key <span style="color:#c4b5fd;font-weight:400">(voiceover)</span></label>
+        <input type="password" id="s-el" placeholder="sk_...">
+      </div>
+      <div class="info-box">🔒 Keys lưu trong localStorage · không gửi server nào khác</div>
+      <button class="btn-gen" style="padding:11px" onclick="saveSettings()">💾 Lưu cài đặt</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOASTS -->
+<div id="toasts"></div>
+
+<script>
+'use strict';
+
+// ══════════════════════════════════════════════════════════════
+// PRESET DATA
+// ══════════════════════════════════════════════════════════════
+
+const PRESET_MODELS = [
+  { id:'m0', name:'KOL 1', desc:'Slim, elegant, 165cm', color:'linear-gradient(160deg,#1a1a3e,#2d1b69)' },
+  { id:'m1', name:'KOL 2', desc:'Sporty, dynamic', color:'linear-gradient(160deg,#1a2e1a,#1b4d2d)' },
+  { id:'m2', name:'KOL 3', desc:'Petite, cute', color:'linear-gradient(160deg,#2e1a1a,#6d2525)' },
+];
+
+const PRESET_BACKGROUNDS = [
+  { id:'b0', cat:'studio', name:'Studio trắng', emoji:'⬜', color:'#e8e8e8',
+    desc:'Pure white photography studio, white seamless backdrop, professional soft box lighting, clean neutral background, modern minimalist setting' },
+  { id:'b1', cat:'studio', name:'Studio xám', emoji:'🩶', color:'#9ca3af',
+    desc:'Light grey photography studio, grey seamless backdrop, softbox lighting, professional fashion photography setting, elegant neutral tone' },
+  { id:'b2', cat:'indoor', name:'Cafe vintage', emoji:'☕', color:'#92400e',
+    desc:'Vintage Korean café interior, white walls with warm wood accents, bistro chairs and round tables, hanging straw hats, warm ambient lighting, cozy romantic atmosphere' },
+  { id:'b3', cat:'outdoor', name:'Phố đô thị', emoji:'🏙', color:'#374151',
+    desc:'Urban city street, busy downtown backdrop, modern architecture, natural daylight, cosmopolitan fashion district vibe, dynamic city energy' },
+  { id:'b4', cat:'outdoor', name:'Vườn hoa', emoji:'🌸', color:'#be185d',
+    desc:'Blooming flower garden, pastel floral backdrop, soft natural light, romantic outdoor setting, cherry blossom or rose garden, spring atmosphere' },
+  { id:'b5', cat:'outdoor', name:'Bãi biển', emoji:'🏖', color:'#0284c7',
+    desc:'Sandy beach backdrop, ocean in background, golden hour natural light, warm coastal atmosphere, soft sand and blue sea, summer vacation vibe' },
+  { id:'b6', cat:'indoor', name:'Cầu thang đẹp', emoji:'🪜', color:'#6b7280',
+    desc:'Elegant staircase interior, marble or concrete steps, architectural fashion setting, editorial studio vibe, dramatic shadows and highlights' },
+  { id:'b7', cat:'nature', name:'Rừng xanh', emoji:'🌿', color:'#166534',
+    desc:'Lush green forest backdrop, dappled natural light through trees, fresh green leaves, outdoor nature fashion photography, serene organic atmosphere' },
+  { id:'b8', cat:'indoor', name:'Showroom sáng', emoji:'🛍', color:'#f5f5f4',
+    desc:'Bright white showroom interior, clean modern retail space, soft ceiling lighting, contemporary minimalist architecture, lifestyle fashion setting' },
+  { id:'b9', cat:'outdoor', name:'Golden hour', emoji:'🌅', color:'#b45309',
+    desc:'Outdoor golden hour setting, warm late afternoon sunlight, long shadows, orange and amber tones, cinematic warm light, magical hour atmosphere' },
+  { id:'b10', cat:'nature', name:'Đồng cỏ', emoji:'🌾', color:'#713f12',
+    desc:'Open meadow or wheat field, natural outdoor setting, soft warm natural light, vast open sky, countryside fashion editorial, serene pastoral mood' },
+  { id:'b11', cat:'indoor', name:'Kho công nghiệp', emoji:'🏭', color:'#44403c',
+    desc:'Industrial warehouse interior, concrete walls and floors, metal structures, edgy urban fashion setting, dramatic directional lighting, raw authentic aesthetic' },
+];
+
+// ══════════════════════════════════════════════════════════════
+// SYSTEM PROMPT (from Trang chủ.html, adapted for new flow)
+// ══════════════════════════════════════════════════════════════
+const SYSTEM_PROMPT = `You are an expert fashion photography prompt engineer.
+
+You will receive:
+- Image 1: the MODEL (body type, skin tone, hair, proportions) — fixed AI fashion model
+- Image 2: the PRODUCT — clothing item(s) to be advertised (may be 1 full outfit, OR 2 separate pieces labeled "TOP" and "BOTTOM")
+- Background context (text): a description of the chosen background setting
+
+Analyze all inputs carefully and output a single JSON object for GPT image-1 (gpt-image-1).
+
+─────────────────────────────────────────
+ANALYSIS INSTRUCTIONS
+─────────────────────────────────────────
+
+From Image 1 — MODEL:
+- Body type and proportions
+- Skin tone (precise: "warm ivory", "light tan", "medium brown")
+- Hair (color, length, texture)
+- Notable features (posture, style energy)
+
+From Image 2 — PRODUCT (if 2 images: analyze both as a complete outfit):
+- Exact color name(s) of each piece
+- Fabric type and texture
+- Key design details (collar, sleeves, hem, lining, trim, etc.)
+- Silhouette shape
+- Length
+- How the pieces work together as a complete look (if 2 items)
+
+From Background text:
+- Use the provided description as the background setting
+- Infer lighting, mood, and atmosphere from the description
+
+─────────────────────────────────────────
+OUTPUT FORMAT — strict JSON only
+─────────────────────────────────────────
+Return ONLY this JSON, no markdown, no explanation:
+
+{
+  "model_description": "...",
+  "product_description": "...",
+  "background_description": "...",
+  "lighting_and_color": "...",
+  "cell_1": { "pose": "...", "face_hidden_technique": "...", "camera_angle": "...", "detail_focus": "..." },
+  "cell_2": { "pose": "...", "face_hidden_technique": "...", "camera_angle": "...", "detail_focus": "..." },
+  "cell_3": { "pose": "...", "face_hidden_technique": "...", "camera_angle": "...", "detail_focus": "..." },
+  "cell_4": { "pose": "...", "face_hidden_technique": "...", "camera_angle": "...", "detail_focus": "..." },
+  "final_image_prompt": "..."
+}
+
+─────────────────────────────────────────
+FIELD RULES
+─────────────────────────────────────────
+
+face_hidden_technique — choose ONE per cell, all 4 must differ:
+  - "holding a small film/Instax camera up to face, obscuring it"
+  - "standing with back fully to camera, showing back of garment"
+  - "seated, head tilted down, long hair falling over face"
+  - "frame cropped at chin level — head cut off at top of frame"
+  - "looking away at 3/4 angle, hair covering face profile"
+
+final_image_prompt must include:
+"A 9:16 portrait fashion photograph composed as a 2×2 grid of 4 real photos stitched together with thin white borders, like a printed photo collage.
+
+The model is [model_description]. She wears [product_description].
+
+Setting for all 4 cells: [background_description]. [lighting_and_color].
+
+Cell 1 (top-left): [cell_1.pose]. [cell_1.face_hidden_technique]. [cell_1.camera_angle]. Focus on [cell_1.detail_focus].
+Cell 2 (top-right): [cell_2.pose]. [cell_2.face_hidden_technique]. [cell_2.camera_angle]. Focus on [cell_2.detail_focus].
+Cell 3 (bottom-left): [cell_3.pose]. [cell_3.face_hidden_technique]. [cell_3.camera_angle]. Focus on [cell_3.detail_focus].
+Cell 4 (bottom-right): [cell_4.pose]. [cell_4.face_hidden_technique]. [cell_4.camera_angle]. Focus on [cell_4.detail_focus].
+
+Photography style: real photograph, editorial fashion, NOT illustration. Consistent color grading. No text or watermarks. Face naturally hidden by pose in every cell."
+
+STRICT RULES:
+- Output ONLY valid JSON. No markdown. No explanation.
+- All 4 cells: different pose AND different face-hidden technique.
+- product_description must be hyper-specific.
+- Never invent details not visible in images.`;
+
+// ══════════════════════════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════════════════════════
+const EL_KEY_DEFAULT = 'sk_eeba8a1bbf7a536f927396c741aa6270b2ab59f84be8cbbc';
+const cfg = {
+  get el()     { return localStorage.getItem('el_key')     || EL_KEY_DEFAULT },
+  get gemini() { return localStorage.getItem('gemini_key') || '' },
+  get openai() { return localStorage.getItem('openai_key') || '' },
+};
+
+let selectedModelIdx = 0;
+let modelImages = {}; // { 0: base64, 1: base64, 2: base64 }
+let prodType = 'single'; // 'single' | 'two'
+let prodImages = { p1: null, p2: null }; // base64 strings
+let prodFiles = { p1: null, p2: null };  // File objects
+let selectedBg = null; // PRESET_BACKGROUNDS item
+let cropZone = null, cropRW = 9, cropRH = 16;
+let cropBox = {x:0,y:0,w:0,h:0}, dragging = false, dragOrig = {};
+let cropSrcImg = null, cropScale = 1;
+let mergeSlot = 0, mImgs = [null,null,null,null];
+let selectedVoice = null, ttsBlob = null;
+let resultImageSrc = null;
+
+// ══════════════════════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════════════════════
+document.addEventListener('DOMContentLoaded', () => {
+  renderModels();
+  renderBgGallery('all');
+  loadVoices();
+  updateGenState();
+  updateApiStatus();
+  document.querySelectorAll('.overlay').forEach(o =>
+    o.addEventListener('click', e => { if(e.target===o) closeModal(o.id) }));
+  // Load saved model images
+  PRESET_MODELS.forEach((m,i) => {
+    const saved = localStorage.getItem('model_img_'+i);
+    if(saved) modelImages[i] = saved;
+  });
+  renderModels();
+});
+
+// ══════════════════════════════════════════════════════════════
+// MODEL LIBRARY
+// ══════════════════════════════════════════════════════════════
+function renderModels() {
+  const grid = document.getElementById('modelGrid');
+  grid.innerHTML = PRESET_MODELS.map((m,i) => `
+    <div class="mcard ${selectedModelIdx===i?'sel':''}" id="mc${i}" onclick="selectModel(${i})">
+      ${modelImages[i]
+        ? `<img src="${modelImages[i]}" alt="${m.name}">`
+        : `<div class="mcard-ph" style="background:${m.color}">
+             <svg width="40" height="60" viewBox="0 0 40 60" fill="none">
+               <ellipse cx="20" cy="13" rx="10" ry="11" fill="rgba(255,255,255,.3)"/>
+               <path d="M4 55 Q8 30 20 28 Q32 30 36 55Z" fill="rgba(255,255,255,.2)"/>
+             </svg>
+           </div>`}
+      <div class="mcard-name">${m.name}</div>
+      ${selectedModelIdx===i?'<div class="mcard-badge">✓ Đang dùng</div>':''}
+      <div class="mcard-sel-ring"></div>
+      <button class="btn-set-model" onclick="event.stopPropagation();setModelImg(${i})">
+        ${modelImages[i]?'Đổi':'Đặt ảnh'}
+      </button>
+    </div>`).join('');
+}
+
+function selectModel(i) {
+  selectedModelIdx = i;
+  renderModels();
+  updateGenState();
+}
+
+function setModelImg(i) {
+  document.getElementById('fi-model').dataset.slot = i;
+  document.getElementById('fi-model').click();
+}
+
+function onModelFile(e) {
+  const f = e.target.files[0]; if(!f) return;
+  const slot = +e.target.dataset.slot;
+  const r = new FileReader();
+  r.onload = ev => {
+    modelImages[slot] = ev.target.result;
+    localStorage.setItem('model_img_'+slot, ev.target.result);
+    renderModels();
+    toast('Đã đặt ảnh KOL '+PRESET_MODELS[slot].name,'ok');
+    updateGenState();
+  };
+  r.readAsDataURL(f);
+  e.target.value='';
+}
+
+// ══════════════════════════════════════════════════════════════
+// PRODUCT TYPE
+// ══════════════════════════════════════════════════════════════
+function setProdType(t) {
+  prodType = t;
+  document.getElementById('pt-single').classList.toggle('active', t==='single');
+  document.getElementById('pt-two').classList.toggle('active', t==='two');
+  document.getElementById('prod-single').style.display = t==='single'?'':'none';
+  document.getElementById('prod-two').style.display   = t==='two'?'':'none';
+  if(t==='single') { prodImages.p2=null; prodFiles.p2=null }
+  updateGenState();
+}
+
+// ══════════════════════════════════════════════════════════════
+// UPLOAD PRODUCT
+// ══════════════════════════════════════════════════════════════
+function triggerUpload(z) { document.getElementById('fi-'+z).click() }
+
+function onFile(e, z) {
+  const f = e.target.files[0]; if(!f) return;
+  prodFiles[z] = f;
+  const r = new FileReader();
+  r.onload = ev => { setZone(z, ev.target.result); setTimeout(()=>openCropFor(z),80) };
+  r.readAsDataURL(f);
+  e.target.value='';
+}
+
+function setZone(z, src) {
+  prodImages[z] = src;
+  // find all zones with that id (could be in single or two layout)
+  document.querySelectorAll('#zone-'+z).forEach(el => {
+    el.querySelectorAll('.z-ico,.z-lbl,.z-hint').forEach(x=>x.style.display='none');
+    let im = el.querySelector('img.prev');
+    if(!im){im=document.createElement('img');im.className='prev';el.insertBefore(im,el.firstChild)}
+    im.src=src;
+    el.classList.add('has');
+  });
+  // show act buttons
+  ['act-'+z, 'act-'+z+'-2'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el) el.classList.add('show');
+  });
+  updateGenState();
+}
+
+function removeImg(z) {
+  prodImages[z]=null; prodFiles[z]=null;
+  document.querySelectorAll('#zone-'+z).forEach(el=>{
+    const im=el.querySelector('img.prev'); if(im)im.remove();
+    el.querySelectorAll('.z-ico,.z-lbl,.z-hint').forEach(x=>x.style.display='');
+    el.classList.remove('has');
+  });
+  ['act-'+z,'act-'+z+'-2'].forEach(id=>{
+    const el=document.getElementById(id); if(el)el.classList.remove('show');
+  });
+  updateGenState();
+}
+
+function onDrag(e,z){e.preventDefault();document.querySelectorAll('#zone-'+z).forEach(el=>el.classList.add('drag'))}
+function onDragLeave(z){document.querySelectorAll('#zone-'+z).forEach(el=>el.classList.remove('drag'))}
+function onDrop(e,z){
+  e.preventDefault();onDragLeave(z);
+  const f=e.dataTransfer.files[0];
+  if(!f||!f.type.startsWith('image/'))return;
+  prodFiles[z]=f;
+  const r=new FileReader();
+  r.onload=ev=>{setZone(z,ev.target.result);setTimeout(()=>openCropFor(z),80)};
+  r.readAsDataURL(f);
+}
+
+// ══════════════════════════════════════════════════════════════
+// BACKGROUND GALLERY
+// ══════════════════════════════════════════════════════════════
+function renderBgGallery(cat) {
+  const list = cat==='all' ? PRESET_BACKGROUNDS : PRESET_BACKGROUNDS.filter(b=>b.cat===cat);
+  document.getElementById('bgGallery').innerHTML = list.map(b=>`
+    <div class="bgcard ${selectedBg?.id===b.id?'sel':''}" id="bgc-${b.id}" onclick="selectBg('${b.id}')">
+      <div class="bg-ph" style="background:${b.color};color:rgba(255,255,255,.8)">${b.emoji}</div>
+      <div class="bg-name">${b.name}</div>
+      <div class="bg-sel-ring"></div>
+    </div>`).join('');
+}
+
+function filterBg(cat, btn) {
+  document.querySelectorAll('.cat-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderBgGallery(cat);
+}
+
+function selectBg(id) {
+  selectedBg = PRESET_BACKGROUNDS.find(b=>b.id===id);
+  renderBgGallery(
+    document.querySelector('.cat-btn.active')?.textContent==='Tất cả'?'all':
+    selectedBg?.cat||'all'
+  );
+  document.getElementById('bgSelLabel').style.display='block';
+  document.getElementById('bgSelName').textContent=selectedBg.name;
+  updateGenState();
+}
+
+// ══════════════════════════════════════════════════════════════
+// GEN STATE
+// ══════════════════════════════════════════════════════════════
+function updateGenState() {
+  const hasModel  = !!modelImages[selectedModelIdx];
+  const hasProd   = prodType==='single' ? !!prodImages.p1 : (!!prodImages.p1 || !!prodImages.p2);
+  const hasBg     = !!selectedBg;
+  const ok        = hasModel && hasProd && hasBg;
+
+  document.getElementById('genBtn').disabled = !ok;
+  const hint = document.getElementById('genHint');
+  if(ok){ hint.textContent='✓ Sẵn sàng — nhấn Tạo ảnh AI'; hint.style.color='var(--green)' }
+  else {
+    const missing=[];
+    if(!hasModel)  missing.push('đặt ảnh KOL');
+    if(!hasProd)   missing.push('upload sản phẩm');
+    if(!hasBg)     missing.push('chọn phông nền');
+    hint.textContent='Còn thiếu: '+missing.join(' · ');
+    hint.style.color='var(--m2)';
+  }
+}
+
+// ══════════════════════════════════════════════════════════════
+// CROP
+// ══════════════════════════════════════════════════════════════
+function openCropFor(z) {
+  if(!prodImages[z]) return;
+  cropZone=z;
+  openModal('cropModal');
+  const cv=document.getElementById('cropCanvas');
+  const im=new Image();
+  im.onload=()=>{
+    cropSrcImg=im;
+    const maxW=Math.min(630,window.innerWidth-80);
+    const maxH=Math.floor(window.innerHeight*.52);
+    cropScale=Math.min(maxW/im.naturalWidth,maxH/im.naturalHeight,1);
+    cv.width=Math.floor(im.naturalWidth*cropScale);
+    cv.height=Math.floor(im.naturalHeight*cropScale);
+    cv.getContext('2d').drawImage(im,0,0,cv.width,cv.height);
+    initBox(cv.width,cv.height);
+    bindDrag();
+  };
+  im.src=prodImages[z];
+}
+
+function initBox(cw,ch){
+  if(cropRW===0){cropBox={x:0,y:0,w:cw,h:ch}}
+  else{
+    const r=cropRW/cropRH;
+    let bw=cw*.85,bh=bw/r;
+    if(bh>ch*.85){bh=ch*.85;bw=bh*r}
+    cropBox={x:Math.floor((cw-bw)/2),y:Math.floor((ch-bh)/2),w:Math.floor(bw),h:Math.floor(bh)};
+  }
+  renderBox();
+}
+
+function renderBox(){
+  const cv=document.getElementById('cropCanvas');
+  const cb=document.getElementById('cropBox');
+  const rect=cv.getBoundingClientRect();
+  const sx=cv.width/rect.width, sy=cv.height/rect.height;
+  cb.style.left=cropBox.x/sx+'px'; cb.style.top=cropBox.y/sy+'px';
+  cb.style.width=cropBox.w/sx+'px'; cb.style.height=cropBox.h/sy+'px';
+}
+
+function bindDrag(){
+  const cv=document.getElementById('cropCanvas');
+  const cb=document.getElementById('cropBox');
+  const move=(cx,cy)=>{
+    if(!dragging)return;
+    const rect=cv.getBoundingClientRect();
+    const sx=cv.width/rect.width,sy=cv.height/rect.height;
+    const dx=(cx-dragOrig.cx)*sx,dy=(cy-dragOrig.cy)*sy;
+    cropBox.x=Math.max(0,Math.min(cv.width-cropBox.w,dragOrig.bx+dx));
+    cropBox.y=Math.max(0,Math.min(cv.height-cropBox.h,dragOrig.by+dy));
+    renderBox();
+  };
+  cb.onmousedown=e=>{e.preventDefault();dragging=true;dragOrig={cx:e.clientX,cy:e.clientY,bx:cropBox.x,by:cropBox.y}};
+  document.onmousemove=e=>move(e.clientX,e.clientY);
+  document.onmouseup=()=>{dragging=false};
+  cb.ontouchstart=e=>{const t=e.touches[0];dragging=true;dragOrig={cx:t.clientX,cy:t.clientY,bx:cropBox.x,by:cropBox.y}};
+  document.ontouchmove=e=>{const t=e.touches[0];move(t.clientX,t.clientY)};
+  document.ontouchend=()=>{dragging=false};
+}
+
+function setRatio(w,h,btn){
+  cropRW=w;cropRH=h;
+  document.querySelectorAll('.rbtn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  const cv=document.getElementById('cropCanvas');
+  if(cv.width)initBox(cv.width,cv.height);
+}
+function resetCropBox(){const cv=document.getElementById('cropCanvas');if(cv.width)initBox(cv.width,cv.height)}
+
+function confirmCrop(){
+  if(!cropSrcImg)return;
+  const srcX=Math.floor(cropBox.x/cropScale), srcY=Math.floor(cropBox.y/cropScale);
+  const srcW=Math.floor(cropBox.w/cropScale), srcH=Math.floor(cropBox.h/cropScale);
+  const tmp=document.createElement('canvas');
+  tmp.width=srcW;tmp.height=srcH;
+  tmp.getContext('2d').drawImage(cropSrcImg,srcX,srcY,srcW,srcH,0,0,srcW,srcH);
+  const src=tmp.toDataURL('image/jpeg',.93);
+
+  // Update the actual file data too by creating a new File from canvas
+  tmp.toBlob(blob=>{prodFiles[cropZone]=new File([blob],'cropped.jpg',{type:'image/jpeg'})});
+  setZone(cropZone, src);
+  closeModal('cropModal');
+  toast('Cắt ảnh thành công','ok');
+}
+
+// ══════════════════════════════════════════════════════════════
+// GENERATE PIPELINE
+// ══════════════════════════════════════════════════════════════
+async function startGenerate(){
+  const btn=document.getElementById('genBtn');
+  btn.disabled=true;btn.classList.add('loading');
+  btn.innerHTML='<div class="spin"></div><span>Đang xử lý...</span>';
+  showLoader();
+
+  try{
+    stepSet(1,'active','Chuẩn bị...');
+    const modelB64 = modelImages[selectedModelIdx].split(',')[1];
+    const modelMime = modelImages[selectedModelIdx].split(';')[0].replace('data:','');
+    await wait(200);
+    stepSet(1,'done','Sẵn sàng');
+
+    // ── Step 2: Gemini analysis ──
+    stepSet(2,'active','Phân tích ảnh...');
+    let analysisResult;
+
+    if(cfg.gemini){
+      analysisResult = await callGemini(modelB64, modelMime);
+    } else {
+      toast('Chưa có Gemini key — dùng mock prompt','inf');
+      await wait(1000);
+      analysisResult = buildMockAnalysis();
+    }
+
+    // Parse JSON from Gemini
+    let parsed={}, finalPrompt='';
+    try{
+      const raw = typeof analysisResult==='string' ? analysisResult : JSON.stringify(analysisResult);
+      const cleaned = raw.replace(/```json\s*/g,'').replace(/```\s*/g,'').trim();
+      parsed = JSON.parse(cleaned);
+      finalPrompt = parsed.final_image_prompt || raw;
+    } catch{
+      finalPrompt = analysisResult;
+      parsed = {raw: analysisResult};
+    }
+
+    // Show Gemini result
+    document.getElementById('geminiPanel').style.display='block';
+    document.getElementById('geminiJson').textContent=JSON.stringify(parsed,null,2);
+    document.getElementById('finalPrompt').value=finalPrompt;
+    stepSet(2,'done','Phân tích xong');
+    addLog('Gemini phân tích xong ✓','ok');
+
+    // ── Step 3: GPT generate ──
+    stepSet(3,'active','Tạo ảnh...');
+
+    if(!cfg.openai && !cfg.gemini){
+      showNoKey();throw new Error('NO_KEY');
+    }
+
+    let imgSrc;
+    if(cfg.openai){
+      imgSrc = await callGPT(finalPrompt);
+    } else {
+      imgSrc = await callGeminiImage(finalPrompt);
+    }
+
+    stepSet(3,'done','Xong');
+    stepSet(4,'done','Hoàn thành');
+
+    showResult(imgSrc);
+    addLog('Tạo ảnh xong ✓ · 2×2 grid 9:16','ok');
+    toast('Tạo ảnh AI thành công!','ok');
+
+  } catch(err){
+    if(err.message!=='NO_KEY'){
+      toast('Lỗi: '+err.message,'err');
+      addLog('Lỗi: '+err.message,'err');
+      showError(err.message);
+      [1,2,3,4].forEach(n=>stepSet(n,'',''));
+    }
+    console.error(err);
+  } finally{
+    btn.disabled=false;btn.classList.remove('loading');
+    btn.innerHTML='<span>✨</span><span>Tạo ảnh AI</span>';
+    updateGenState();
+  }
+}
+
+async function callGemini(modelB64, modelMime){
+  addLog('Gửi ảnh đến Gemini 2.0 Flash...');
+  const parts=[
+    {text:'Here are the inputs. Image 1 is the MODEL. The following images are the PRODUCT. Background: '+selectedBg.desc+(prodType==='two'?' Note: two product images provided — first is TOP, second is BOTTOM.':'')},
+    {inline_data:{mime_type:modelMime,data:modelB64}},
+  ];
+
+  // Add product images
+  if(prodImages.p1){
+    const b=prodImages.p1.split(',')[1], mt=prodImages.p1.split(';')[0].replace('data:','');
+    parts.push({inline_data:{mime_type:mt,data:b}});
+  }
+  if(prodType==='two' && prodImages.p2){
+    const b=prodImages.p2.split(',')[1], mt=prodImages.p2.split(';')[0].replace('data:','');
+    parts.push({inline_data:{mime_type:mt,data:b}});
+  }
+
+  const body={
+    system_instruction:{parts:[{text:SYSTEM_PROMPT}]},
+    contents:[{parts}],
+    generationConfig:{temperature:.7,maxOutputTokens:4096,responseMimeType:'application/json'}
+  };
+
+  const res=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${cfg.gemini}`,
+    {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+  if(!res.ok){const e=await res.json().catch(()=>({}));throw new Error(e.error?.message||'Gemini '+res.status)}
+  const d=await res.json();
+  return d.candidates?.[0]?.content?.parts?.[0]?.text || '';
+}
+
+async function callGPT(prompt){
+  addLog('Gửi prompt + ảnh đến GPT image-1...');
+  const fd=new FormData();
+  fd.append('model','gpt-image-1');
+  fd.append('prompt',prompt);
+  fd.append('n','1');
+  fd.append('size','1024x1792');
+  fd.append('quality','high');
+
+  // Attach reference images
+  if(prodFiles.p1) fd.append('image[]',prodFiles.p1,'product.jpg');
+  if(prodType==='two' && prodFiles.p2) fd.append('image[]',prodFiles.p2,'product2.jpg');
+
+  const res=await fetch('https://api.openai.com/v1/images/generations',
+    {method:'POST',headers:{'Authorization':'Bearer '+cfg.openai},body:fd});
+  if(!res.ok){const e=await res.json().catch(()=>({}));throw new Error(e.error?.message||'OpenAI '+res.status)}
+  const d=await res.json();
+  const img=d.data?.[0];
+  if(!img)throw new Error('GPT không trả về ảnh');
+  if(img.b64_json)return 'data:image/png;base64,'+img.b64_json;
+  if(img.url)return img.url;
+  throw new Error('Không đọc được ảnh từ GPT');
+}
+
+async function callGeminiImage(prompt){
+  addLog('Gửi prompt đến Gemini Image Generation (fallback)...');
+  const res=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp-image-generation:generateContent?key=${cfg.gemini}`,
+    {method:'POST',headers:{'Content-Type':'application/json'},
+     body:JSON.stringify({
+       contents:[{parts:[{text:prompt}]}],
+       generationConfig:{responseModalities:['IMAGE']}
+     })});
+  if(!res.ok)throw new Error('Gemini Image '+res.status);
+  const d=await res.json();
+  const part=d.candidates?.[0]?.content?.parts?.find(p=>p.inlineData);
+  if(!part)throw new Error('Gemini Image không trả về ảnh');
+  return 'data:'+part.inlineData.mimeType+';base64,'+part.inlineData.data;
+}
+
+function buildMockAnalysis(){
+  const s=document.getElementById('styleMode').value;
+  return JSON.stringify({
+    model_description:'Slim East Asian female model, warm ivory skin tone, long straight black hair',
+    product_description:'Stylish outfit as shown in product reference image',
+    background_description:selectedBg.desc,
+    lighting_and_color:'Soft natural lighting, consistent color grading',
+    cell_1:{pose:'Standing confidently',face_hidden_technique:'frame cropped at chin level — head cut off at top of frame',camera_angle:'full body front',detail_focus:'front design and overall silhouette'},
+    cell_2:{pose:'Walking forward casually',face_hidden_technique:'standing with back fully to camera, showing back of garment',camera_angle:'full body rear view',detail_focus:'back design and fabric texture'},
+    cell_3:{pose:'Leaning against wall relaxed',face_hidden_technique:'looking away at 3/4 angle, hair covering face profile',camera_angle:'waist-up 3/4 angle',detail_focus:'upper body details and fabric'},
+    cell_4:{pose:'Sitting on steps naturally',face_hidden_technique:'seated, head tilted down, long hair falling over face',camera_angle:'close crop knees to shoulder',detail_focus:'lower garment and overall look'},
+    final_image_prompt:`A 9:16 portrait fashion photograph composed as a 2×2 grid of 4 real photos stitched together with thin white borders, like a printed photo collage.
+
+The model is a slim East Asian female, warm ivory skin, long straight black hair. She wears a stylish outfit.
+
+Setting for all 4 cells: ${selectedBg.desc}. Soft natural lighting, consistent color grading.
+
+Cell 1 (top-left): Standing confidently. Frame cropped at chin level. Full body front view. Focus on front design and silhouette.
+Cell 2 (top-right): Walking forward. Back fully to camera showing garment back. Full body rear view. Focus on back design.
+Cell 3 (bottom-left): Leaning against wall. Looking away, hair covering profile. Waist-up 3/4 angle. Focus on upper body details.
+Cell 4 (bottom-right): Sitting naturally. Head tilted down, hair falling over face. Close crop knees to shoulder. Focus on lower garment.
+
+Photography style: real photograph, ${s} fashion editorial, NOT illustration. No text or watermarks. Face naturally hidden in every cell.`
+  });
+}
+
+// Re-run GPT with edited prompt
+async function rerunGPT(){
+  if(!cfg.openai && !cfg.gemini){toast('Cần API key','err');return}
+  const prompt=document.getElementById('finalPrompt').value.trim();
+  if(!prompt){toast('Prompt trống','err');return}
+  showLoader();
+  stepSet(3,'active','Tạo lại...');
+  try{
+    let src;
+    if(cfg.openai) src=await callGPT(prompt);
+    else src=await callGeminiImage(prompt);
+    stepSet(3,'done','Xong');
+    stepSet(4,'done','Hoàn thành');
+    showResult(src);
+    toast('Tạo lại xong!','ok');
+  } catch(e){
+    toast('Lỗi: '+e.message,'err');
+    stepSet(3,'','');
+  }
+}
+
+// ══════════════════════════════════════════════════════════════
+// OUTPUT
+// ══════════════════════════════════════════════════════════════
+function showLoader(){
+  document.getElementById('outWrap').innerHTML=`
+    <div style="display:flex;flex-direction:column;align-items:center;gap:12px;padding:60px 20px">
+      <div class="spin spin-lg"></div>
+      <p style="font-size:12px;color:var(--m1)">AI đang tạo ảnh 2×2 grid...</p>
+    </div>`;
+  resultImageSrc=null;
+}
+
+function showResult(src){
+  resultImageSrc=src;
+  document.getElementById('outWrap').innerHTML=`
+    <img src="${src}" alt="AI Generated Fashion Grid" style="max-width:100%;border-radius:12px">`;
+}
+
+function showError(msg){
+  document.getElementById('outWrap').innerHTML=`
+    <div style="display:flex;flex-direction:column;align-items:center;gap:10px;padding:40px;text-align:center">
+      <span style="font-size:32px">⚠</span>
+      <p style="font-size:13px;color:#fca5a5">${msg}</p>
+      <button onclick="openModal('settingsModal')" style="padding:7px 16px;background:var(--bld);border:1px solid var(--blue);border-radius:8px;color:#93c5fd;font-size:12px;cursor:pointer">⚙ Cài đặt API</button>
+    </div>`;
+}
+
+function showNoKey(){
+  showError('Cần Gemini hoặc OpenAI API key để tạo ảnh · Mở Cài đặt API');
+}
+
+function dlResult(){
+  if(!resultImageSrc){toast('Chưa có ảnh để tải','err');return}
+  const a=document.createElement('a');
+  a.href=resultImageSrc;
+  a.download='stylereel-fashion-grid.jpg';
+  a.click();
+}
+
+function sendToMerge(){
+  if(!resultImageSrc){toast('Tạo ảnh trước rồi gửi sang Merge','err');return}
+  setMCell(0,resultImageSrc);
+  switchTab('merge');
+  toast('Gửi sang Merge tool','ok');
+}
+
+// ══════════════════════════════════════════════════════════════
+// PIPELINE STEPS
+// ══════════════════════════════════════════════════════════════
+function stepSet(n,cls,stat){
+  const el=document.getElementById('ps'+n);
+  el.className='ps'+(cls?' '+cls:'');
+  const ico={1:'📤',2:'🧠',3:'🎨',4:'✅'};
+  const done={1:'✓',2:'✓',3:'✓',4:'✅'};
+  el.querySelector('.ps-ico').textContent=cls==='done'?done[n]:ico[n];
+  if(stat)el.querySelector('.ps-stat').textContent=stat;
+}
+
+// ══════════════════════════════════════════════════════════════
+// MERGE TOOL
+// ══════════════════════════════════════════════════════════════
+function triggerMerge(s){mergeSlot=s;document.getElementById('fi-merge').click()}
+function onMergeFile(e){
+  const f=e.target.files[0];if(!f)return;
+  const r=new FileReader();
+  r.onload=ev=>setMCell(mergeSlot,ev.target.result);
+  r.readAsDataURL(f);e.target.value='';
+}
+function setMCell(s,src){
+  mImgs[s]=src;
+  document.getElementById('m'+s).innerHTML=`
+    <img class="mp" src="${src}">
+    <button class="mcell-del" onclick="event.stopPropagation();delMCell(${s})">✕</button>`;
+}
+function delMCell(s){mImgs[s]=null;document.getElementById('m'+s).innerHTML=`<div class="mcell-n">${s+1}</div>`}
+function clearMerge(){mImgs.fill(null);[0,1,2,3].forEach(i=>delMCell(i))}
+function mDragOver(e,s){e.preventDefault();document.getElementById('m'+s).style.borderColor='var(--blue)'}
+function mDragLeave(s){document.getElementById('m'+s).style.borderColor=''}
+function mDrop(e,s){
+  e.preventDefault();mDragLeave(s);
+  const f=e.dataTransfer.files[0];if(!f||!f.type.startsWith('image/'))return;
+  const r=new FileReader();r.onload=ev=>setMCell(s,ev.target.result);r.readAsDataURL(f);
+}
+
+async function exportMerge(){
+  if(!mImgs.some(Boolean)){toast('Thêm ít nhất 1 ảnh','err');return}
+  const ch=900,cw=Math.floor(ch*9/16);
+  const cv=document.getElementById('mergeCanvas');
+  cv.width=cw*2;cv.height=ch*2;
+  const ctx=cv.getContext('2d');
+  ctx.fillStyle='#080812';ctx.fillRect(0,0,cw*2,ch*2);
+  const pos=[[0,0],[cw,0],[0,ch],[cw,ch]];
+  const loadI=src=>new Promise(r=>{const i=new Image();i.onload=()=>r(i);i.src=src});
+  for(let i=0;i<4;i++){
+    if(!mImgs[i])continue;
+    const im=await loadI(mImgs[i]);
+    const[px,py]=pos[i];
+    const sc=Math.max(cw/im.width,ch/im.height);
+    const sw=im.width*sc,sh=im.height*sc,ox=(cw-sw)/2,oy=(ch-sh)/2;
+    ctx.save();ctx.beginPath();ctx.rect(px,py,cw,ch);ctx.clip();
+    ctx.drawImage(im,px+ox,py+oy,sw,sh);ctx.restore();
+  }
+  ctx.strokeStyle='rgba(255,255,255,.05)';ctx.lineWidth=2;
+  ctx.beginPath();ctx.moveTo(cw,0);ctx.lineTo(cw,ch*2);ctx.moveTo(0,ch);ctx.lineTo(cw*2,ch);ctx.stroke();
+  cv.toBlob(b=>{
+    const u=URL.createObjectURL(b);const a=document.createElement('a');
+    a.href=u;a.download='stylereel-grid-2x2.jpg';a.click();URL.revokeObjectURL(u);
+    toast('Export grid thành công!','ok');
+  },'image/jpeg',.95);
+}
+
+// ══════════════════════════════════════════════════════════════
+// ELEVENLABS TTS
+// ══════════════════════════════════════════════════════════════
+async function loadVoices(){
+  const grid=document.getElementById('voiceGrid');
+  try{
+    const res=await fetch('https://api.elevenlabs.io/v1/voices',{headers:{'xi-api-key':cfg.el}});
+    if(!res.ok)throw new Error('HTTP '+res.status);
+    const d=await res.json();
+    grid.innerHTML='';
+    d.voices.slice(0,16).forEach(v=>{
+      const c=document.createElement('div');
+      c.className='vcard';c.dataset.id=v.voice_id;
+      c.innerHTML=`<div class="vcard-name">${v.name}</div><div class="vcard-sub">${v.category||'general'} ${v.labels?.accent||''}</div>`;
+      c.onclick=()=>{document.querySelectorAll('.vcard').forEach(x=>x.classList.remove('sel'));c.classList.add('sel');selectedVoice=v.voice_id};
+      grid.appendChild(c);
+    });
+    if(grid.children.length)grid.children[0].click();
+  } catch(e){
+    grid.innerHTML=`<div style="grid-column:1/-1;text-align:center;padding:12px;color:#fca5a5;font-size:11px">
+      Không tải được giọng: ${e.message}<br>
+      <button onclick="loadVoices()" style="margin-top:7px;padding:4px 12px;background:var(--bld);border:1px solid var(--blue);border-radius:7px;color:#93c5fd;font-size:10px;cursor:pointer">Thử lại</button>
+    </div>`;
+  }
+}
+
+async function generateTTS(btn){
+  const text=document.getElementById('ttsText').value.trim();
+  if(!text){toast('Nhập script trước','err');return}
+  if(!selectedVoice){toast('Chọn giọng','err');return}
+  const orig=btn.innerHTML;
+  btn.innerHTML='<div class="spin"></div><span>Đang tạo...</span>';btn.disabled=true;
+  document.getElementById('ttsErr').style.display='none';
+  document.getElementById('ttsResult').style.display='none';
+  try{
+    const res=await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${selectedVoice}`,{
+      method:'POST',
+      headers:{'xi-api-key':cfg.el,'Content-Type':'application/json'},
+      body:JSON.stringify({text,model_id:'eleven_multilingual_v2',
+        voice_settings:{stability:.5,similarity_boost:.75,style:.25,use_speaker_boost:true}})
+    });
+    if(!res.ok){const j=await res.json().catch(()=>({}));throw new Error(j.detail?.message||j.detail||'HTTP '+res.status)}
+    ttsBlob=await res.blob();
+    document.getElementById('ttsAudio').src=URL.createObjectURL(ttsBlob);
+    document.getElementById('ttsResult').style.display='block';
+    document.getElementById('ttsAudio').play();
+    toast('Voiceover tạo xong!','ok');
+  }catch(e){
+    const err=document.getElementById('ttsErr');
+    err.style.display='block';
+    err.textContent='⚠ ElevenLabs: '+e.message;
+  }finally{btn.innerHTML=orig;btn.disabled=false}
+}
+
+function downloadTTS(){
+  if(!ttsBlob)return;
+  const a=document.createElement('a');a.href=URL.createObjectURL(ttsBlob);a.download='voiceover.mp3';a.click();
+}
+
+// ══════════════════════════════════════════════════════════════
+// SETTINGS
+// ══════════════════════════════════════════════════════════════
+function saveSettings(){
+  const gem=document.getElementById('s-gem').value.trim();
+  const oai=document.getElementById('s-oai').value.trim();
+  const el=document.getElementById('s-el').value.trim();
+  if(gem)localStorage.setItem('gemini_key',gem);
+  if(oai)localStorage.setItem('openai_key',oai);
+  if(el)localStorage.setItem('el_key',el);
+  closeModal('settingsModal');
+  toast('Đã lưu API keys','ok');
+  updateApiStatus();loadVoices();
+}
+
+function loadSettingsForm(){
+  document.getElementById('s-gem').value=localStorage.getItem('gemini_key')||'';
+  document.getElementById('s-oai').value=localStorage.getItem('openai_key')||'';
+  document.getElementById('s-el').value=localStorage.getItem('el_key')||EL_KEY_DEFAULT;
+}
+
+function updateApiStatus(){
+  const el=document.getElementById('apiStatus');
+  const parts=[];
+  if(cfg.gemini)parts.push('Gemini ✓');
+  if(cfg.openai)parts.push('GPT ✓');
+  if(cfg.el&&cfg.el!==EL_KEY_DEFAULT)parts.push('EL ✓');
+  el.textContent=parts.length?parts.join(' · '):'Chưa có API key';
+  el.style.color=parts.length?'var(--green)':'var(--m2)';
+}
+
+// ══════════════════════════════════════════════════════════════
+// UI HELPERS
+// ══════════════════════════════════════════════════════════════
+function openModal(id){
+  document.getElementById(id).classList.add('open');
+  if(id==='settingsModal')loadSettingsForm();
+}
+function closeModal(id){document.getElementById(id).classList.remove('open')}
+
+function switchTab(name){
+  document.querySelectorAll('.tab').forEach((t,i)=>
+    t.classList.toggle('active',(i===0&&name==='merge')||(i===1&&name==='tts')));
+  document.getElementById('tab-merge').classList.toggle('active',name==='merge');
+  document.getElementById('tab-tts').classList.toggle('active',name==='tts');
+}
+
+function addLog(msg,type=''){
+  const box=document.getElementById('logBox');
+  const d=document.createElement('div');
+  d.className='log-line'+(type?' '+type:'');
+  d.textContent='['+new Date().toLocaleTimeString('vi-VN')+'] '+msg;
+  box.appendChild(d);box.scrollTop=box.scrollHeight;
+}
+
+function toast(msg,type='inf'){
+  const c=document.getElementById('toasts');
+  const d=document.createElement('div');
+  d.className='toast '+type;
+  d.innerHTML=`<span>${{ok:'✓',err:'✕',inf:'ℹ'}[type]}</span> ${msg}`;
+  c.appendChild(d);setTimeout(()=>d.remove(),4000);
+}
+
+function wait(ms){return new Promise(r=>setTimeout(r,ms))}
+</script>
+</body>
+</html>
